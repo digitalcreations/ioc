@@ -1,0 +1,30 @@
+{
+    "name": "dc/ioc",
+    "description": "Simple IoC container",
+    "keywords": ["ioc", "inversion of control", "di", "dependency injection"],
+    "homepage": "http://github.com/digitalcreations/ioc",
+    "authors": [
+        {
+            "name": "Digital Creations AS",
+            "homepage": "http://www.digitalcreations.no",
+            "role": "Company"
+        },
+        {
+            "name": "Vegard Andreas Larsen",
+            "homepage": "http://vega.rd.no",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/digitalcreations/ioc/issues",
+        "source": "http://github.com/digitalcreations/ioc"
+    },
+    "require": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "DC\\IoC\\": "src/IoC"
+        }
+    }
+}
