@@ -80,7 +80,7 @@ class Container {
             throw new \InvalidArgumentException("More than 1 registration found for $classOrInterfaceName");
         } else if (class_exists($classOrInterfaceName)) {
             $injector = new ConstructorInjector($this);
-            return $injector->Construct($classOrInterfaceName);
+            return $injector->construct($classOrInterfaceName);
         } else {
            throw new \InvalidArgumentException("Registration not found for $classOrInterfaceName");
         }

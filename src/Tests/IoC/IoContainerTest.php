@@ -8,9 +8,9 @@ interface IFoo {
 
 }
 class Foo implements IFoo {
-    public static $fConstructed = false;
+    public static $constructed = false;
     public function __construct() {
-        Foo::$fConstructed = true;
+        Foo::$constructed = true;
     }
 }
 
@@ -26,6 +26,21 @@ class ConstructorDependency {
     }
 }
 
+class ArrayConstructorDependency {
+    /**
+     * @var array|IFoo[]
+     */
+    public $foos;
+
+    /**
+     * @param $foos \DC\Tests\IoC\IFoo[]
+     */
+    public function __construct(array $foos) {
+
+        $this->foos = $foos;
+    }
+}
+
 class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     public function testBasicResolve() {
         $container = new Container();
@@ -37,17 +52,17 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      */
     public function testRegisterFailsForNonInterface() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Bar')->to('\DC\Tests\IoC\IFoo');
     }
 
     public function testBasicResolveDoesNotInstantiateBeforeRequested() {
-        Foo::$fConstructed = false;
-        $container = new Container();
+        Foo::$constructed = false;
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
-        $this->assertFalse(Foo::$fConstructed, "Foo should not yet have been constructed");
+        $this->assertFalse(Foo::$constructed, "Foo should not yet have been constructed");
         $container->resolve('\DC\Tests\IoC\IFoo');
-        $this->assertTrue(Foo::$fConstructed, "Foo should have been constructed now");
+        $this->assertTrue(Foo::$constructed, "Foo should have been constructed now");
     }
 
     public function testBasicResolveToSelf() {
@@ -55,6 +70,19 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $container->register('\DC\Tests\IoC\Bar');
 
         $this->assertInstanceOf('\DC\Tests\IoC\Bar', $container->resolve('\DC\Tests\IoC\Bar'));
+    }
+
+    public function testRegisterFactory() {
+        $container = new \DC\IoC\Container();
+        $constructed = false;
+        $container->register(function() use (&$constructed) {
+            $constructed = true;
+            return new Foo();
+        })->to('\DC\Tests\IoC\IFoo');
+        $this->assertFalse($constructed);
+        $instance = $container->resolve('\DC\Tests\IoC\IFoo');
+        $this->assertTrue($constructed);
+        $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance);
     }
 
     public function testRegisterInstanceResolveToSelfByDefault() {
@@ -168,5 +196,14 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $container = new \DC\IoC\Container();
 
         $container->resolve('\DC\Tests\IOC\ConstructorDependency');
+    }
+
+    public function testConstructorInjectionForArray() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $instance = $container->resolve('\DC\Tests\IoC\ArrayConstructorDependency');
+
+        $this->assertEquals(1, count($instance->foos));
     }
 } 

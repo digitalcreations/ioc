@@ -13,7 +13,14 @@ class ConstructorInjector {
         $this->container = $container;
     }
 
-    public function Construct($className) {
+    private function getParameterFromPhpDoc(\ReflectionMethod $reflectionConstructor, $parameterName) {
+        $phpDoc = $reflectionConstructor->getDocComment();
+        if (preg_match('/^\s+\*\s+@param\s+.+?\s+(?:array\|)?(\S+)/im', $phpDoc, $results)) {
+            return $results[1];
+        }
+    }
+
+    public function construct($className) {
         $reflectionClass = new \ReflectionClass($className);
         $reflectionConstructor = $reflectionClass->getConstructor();
         if ($reflectionConstructor != null) {
@@ -21,12 +28,22 @@ class ConstructorInjector {
 
             if (count($reflectionParameters) > 0) {
                 $arguments = array();
-                foreach ($reflectionParameters as $oReflectionParameter) {
-                    $name = $oReflectionParameter->getClass()->getName();
-                    if (strpos($name, '\\') !== false) {
-                        $name = '\\'.$name;
+                foreach ($reflectionParameters as $reflectionParameter) {
+                    $parameterClass = $reflectionParameter->getClass();
+                    if ($parameterClass == null) {
+                        $name = $this->getParameterFromPhpDoc($reflectionConstructor, $reflectionParameter->getName());
+                    } else {
+                        $name = $parameterClass->getName();
                     }
-                    $dependency = $this->container->resolve($name);
+                    if ($name == null) {
+                        throw new \InvalidArgumentException("Could not determine type for property $reflectionParameter->getName() while resolving $className");
+                    }
+                    $name = $this->container->normalizeClassName($name);
+                    if (preg_match('/\[\]$/', $name)) {
+                        $dependency = $this->container->resolveAll(substr($name, 0, count($name)-3));
+                    } else {
+                        $dependency = $this->container->resolve($name);
+                    }
                     $arguments[] = $dependency;
                 }
                 return $reflectionClass->newInstanceArgs($arguments);
