@@ -2,8 +2,6 @@
 
 namespace DC\Tests\IoC;
 
-use DC\IoC\Container;
-
 interface IFoo {
 
 }
@@ -43,7 +41,7 @@ class ArrayConstructorDependency {
 
 class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     public function testBasicResolve() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
         $this->assertInstanceOf('\DC\Tests\IoC\Foo', $container->resolve('\DC\Tests\IoC\IFoo'));
     }
@@ -66,7 +64,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testBasicResolveToSelf() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Bar');
 
         $this->assertInstanceOf('\DC\Tests\IoC\Bar', $container->resolve('\DC\Tests\IoC\Bar'));
@@ -86,7 +84,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRegisterInstanceResolveToSelfByDefault() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $instance = new Bar();
         $container->register($instance);
         $this->assertInstanceOf('\DC\Tests\IoC\Bar', $container->resolve('\DC\Tests\IoC\Bar'));
@@ -97,19 +95,19 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      */
     public function testRegisterInstanceFailsForNonInterface() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register(new Bar())->to('\DC\Tests\IoC\IFoo');
     }
 
     public function testRegisterInstance() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $instance = new Foo();
         $container->register($instance)->to('\DC\Tests\IoC\IFoo');
         $this->assertTrue($instance === $container->resolve('\DC\Tests\IoC\IFoo'));
     }
 
     public function testResolveAll() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register(new Foo())->to('\DC\Tests\IoC\IFoo');
         $container->register(new Foo())->to('\DC\Tests\IoC\IFoo');
 
@@ -122,7 +120,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      */
     public function testResolveThrowsOnMultipleRegistrations() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register(new Foo())->to('\DC\Tests\IoC\IFoo');
         $container->register(new Foo())->to('\DC\Tests\IoC\IFoo');
         $container->resolve('\DC\Tests\IoC\IFoo');
@@ -132,55 +130,55 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      */
     public function testResolveNonRegisteredConstructorLess() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->resolve('\DC\Tests\IoC\IFoo');
     }
 
     public function testPerResolveLifetime() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withPerResolveLifetime();
 
         $this->assertFalse($container->resolve('\DC\Tests\IoC\IFoo') === $container->resolve('\DC\Tests\IoC\IFoo'));
     }
 
     public function testSingletonLifetime() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withSingletonLifetime();
 
         $this->assertTrue($container->resolve('\DC\Tests\IoC\IFoo') === $container->resolve('\DC\Tests\IoC\IFoo'));
     }
 
     public function testContainerLifetimeResolvesToSame() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withContainerLifetime();
 
         $this->assertTrue($container->resolve('\DC\Tests\IoC\IFoo') === $container->resolve('\DC\Tests\IoC\IFoo'));
     }
 
     public function testContainerLifetimeDoesNotSurviveDifferentContainers() {
-        $firstContainer = new Container();
+        $firstContainer = new \DC\IoC\Container();
         $firstContainer->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withContainerLifetime();
         $firstInstance = $firstContainer->resolve('\DC\Tests\IoC\IFoo');
 
-        $secondContainer = new Container();
+        $secondContainer = new \DC\IoC\Container();
         $secondContainer->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withContainerLifetime();
         $secondInstance = $secondContainer->resolve('\DC\Tests\IoC\IFoo');
         $this->assertFalse($secondInstance === $firstInstance);
     }
 
     public function testSingletonLifetimeSurvivesDifferentContainers() {
-        $firstContainer = new Container();
+        $firstContainer = new \DC\IoC\Container();
         $firstContainer->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withSingletonLifetime();
         $firstInstance = $firstContainer->resolve('\DC\Tests\IoC\IFoo');
 
-        $secondContainer = new Container();
+        $secondContainer = new \DC\IoC\Container();
         $secondContainer->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withSingletonLifetime();
         $secondInstance = $secondContainer->resolve('\DC\Tests\IoC\IFoo');
         $this->assertTrue($secondInstance === $firstInstance);
     }
 
     public function testConstructorInjection() {
-        $container = new Container();
+        $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
 
         $instance = $container->resolve('\DC\Tests\IOC\ConstructorDependency');
