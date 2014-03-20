@@ -2,24 +2,7 @@
 
 namespace DC\IoC;
 
-class ConstructorInjector {
-    /**
-     * @var Container
-     */
-    private $container;
-
-    public function __construct(Container $container) {
-
-        $this->container = $container;
-    }
-
-    private function getParameterFromPhpDoc(\ReflectionMethod $reflectionConstructor, $parameterName) {
-        $phpDoc = $reflectionConstructor->getDocComment();
-        if (preg_match('/^\s+\*\s+@param\s+.+?\s+(?:array\|)?(\S+)/im', $phpDoc, $results)) {
-            return $results[1];
-        }
-    }
-
+class ConstructorInjector extends InjectorBase {
     public function construct($className) {
         $reflectionClass = new \ReflectionClass($className);
         $reflectionConstructor = $reflectionClass->getConstructor();

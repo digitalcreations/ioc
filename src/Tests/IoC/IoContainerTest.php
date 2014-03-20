@@ -204,4 +204,32 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, count($instance->foos));
     }
+
+    public function testFactoryRegistrationServiceInjection() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $container->register(function(IFoo $foo) {
+            $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo);
+            return new Bar();
+        })->to('\DC\Tests\IoC\Bar');
+
+        $container->resolve('\DC\Tests\IoC\Bar');
+    }
+
+    public function testFactoryRegistrationServiceArrayInjection() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $container->register(
+            /**
+             * @param $foo \DC\Tests\IoC\IFoo[]
+             */
+            function(array $foo) {
+                $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo[0]);
+                return new Bar();
+            })->to('\DC\Tests\IoC\Bar');
+
+        $container->resolve('\DC\Tests\IoC\Bar');
+    }
 } 

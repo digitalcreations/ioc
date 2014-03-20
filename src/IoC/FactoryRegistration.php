@@ -18,6 +18,7 @@ class FactoryRegistration extends Registration {
 
     function create()
     {
-        return call_user_func($this->factory);
+        $injector = new FunctionInjector($this->container);
+        return $injector->run($this->factory);
     }
 }
