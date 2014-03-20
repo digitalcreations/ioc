@@ -27,6 +27,6 @@ class ClassNameRegistration extends Registration {
     function create()
     {
         $oInjector = new ConstructorInjector($this->container);
-        return $oInjector->Construct($this->className);
+        return $oInjector->construct($this->className);
     }
 }

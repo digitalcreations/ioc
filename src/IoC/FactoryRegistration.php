@@ -20,9 +20,4 @@ class FactoryRegistration extends Registration {
     {
         return call_user_func($this->factory);
     }
-
-    function toSelf()
-    {
-        throw new \InvalidArgumentException("Callable registrations cannot be bound to self, as their return type is unknown. Specify return type using To().");
-    }
 }

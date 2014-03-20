@@ -28,11 +28,6 @@ abstract class Registration implements IRegistration, IRegistrationLookup {
         return $this;
     }
 
-    function toSelf()
-    {
-        return $this;
-    }
-
     function withSingletonLifetime()
     {
         $this->lifetimeManager = SingletonLifetimeManagerFactory::getForKey($this->boundAs, $this);
