@@ -14,7 +14,7 @@ class ConstructorInjector extends InjectorBase {
                 foreach ($reflectionParameters as $reflectionParameter) {
                     $parameterClass = $reflectionParameter->getClass();
                     if ($parameterClass == null) {
-                        $name = $this->getParameterFromPhpDoc($reflectionConstructor, $reflectionParameter->getName());
+                        $name = $this->getParameterClassFromPhpDoc($reflectionConstructor, $reflectionParameter->getName());
                     } else {
                         $name = $parameterClass->getName();
                     }

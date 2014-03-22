@@ -2,7 +2,7 @@
 
 namespace DC\IoC;
 
-abstract class Registration implements IRegistration, IRegistrationLookup {
+abstract class Registration implements IRegistration {
     /**
      * @var Container
      */
@@ -22,9 +22,9 @@ abstract class Registration implements IRegistration, IRegistrationLookup {
 
     public abstract function create();
 
-    function to($className)
+    function to($classOrInterfaceName)
     {
-        $this->boundAs = $this->container->normalizeClassName($className);
+        $this->boundAs = $this->container->normalizeClassName($classOrInterfaceName);
         return $this;
     }
 
@@ -46,9 +46,9 @@ abstract class Registration implements IRegistration, IRegistrationLookup {
         return $this;
     }
 
-    function canResolve($className)
+    function canResolve($classOrInterfaceName)
     {
-        return $this->boundAs == $className;
+        return $this->boundAs == $classOrInterfaceName;
     }
 
     function resolve() {

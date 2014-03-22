@@ -2,6 +2,11 @@
 
 namespace DC\IoC;
 
+/**
+ * Lifetime manager that produces the same instance throughout its lifetime.
+ *
+ * @package DC\IoC
+ */
 class ExtendedLifetimeManager extends LifetimeManager {
 
     private $instance;

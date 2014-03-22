@@ -2,6 +2,11 @@
 
 namespace DC\IoC;
 
+/**
+ * Factory to produce a singleton ExtendedLifetimeManager
+ *
+ * @package DC\IoC
+ */
 class SingletonLifetimeManagerFactory {
 
     private static $registrations = array();

@@ -10,7 +10,7 @@ class FunctionInjector extends InjectorBase {
         foreach ($reflectionParameters as $reflectionParameter) {
             $parameterClass = $reflectionParameter->getClass();
             if ($parameterClass == null) {
-                $name = $this->getParameterFromPhpDoc($reflectionFunction, $reflectionParameter->getName());
+                $name = $this->getParameterClassFromPhpDoc($reflectionFunction, $reflectionParameter->getName());
             } else {
                 $name = $parameterClass->getName();
             }

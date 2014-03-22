@@ -16,12 +16,12 @@ class ClassNameRegistration extends Registration {
         $this->withPerResolveLifetime();
     }
 
-    function to($className)
+    function to($classOrInterfaceName)
     {
-        if (!is_subclass_of($this->className, $className)) {
-            throw new \InvalidArgumentException("$this->className does not implement or extend $className");
+        if (!is_subclass_of($this->className, $classOrInterfaceName)) {
+            throw new \InvalidArgumentException("$this->className does not implement or extend $classOrInterfaceName");
         }
-        return parent::to($className);
+        return parent::to($classOrInterfaceName);
     }
 
     function create()

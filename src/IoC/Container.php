@@ -2,8 +2,19 @@
 
 namespace DC\IoC;
 
+/**
+ * Simple IoC container.
+ *
+  * @package DC\IoC
+ */
 class Container {
+    /**
+     * @var IRegistrationLookup[]
+     */
     private $registry = array();
+    /**
+     * @var ExtendedLifetimeManager[] Life time managers for items with container lifetime.
+     */
     private $lifetimeRegistrations = array();
 
     private function addRegistration(Registration $registration) {
@@ -17,10 +28,14 @@ class Container {
         return $classOrInterfaceName;
     }
 
-    private function findRegistrations($className) {
-        $className = $this->normalizeClassName($className);
-        return array_values(array_filter($this->registry, function($registration) use ($className) {
-            return $registration->CanResolve($className);
+    /**
+     * @param $classOrInterfaceName The class or interface name to find registrations for.
+     * @return IRegistration[] Matching registrations
+     */
+    private function findRegistrations($classOrInterfaceName) {
+        $classOrInterfaceName = $this->normalizeClassName($classOrInterfaceName);
+        return array_values(array_filter($this->registry, function($registration) use ($classOrInterfaceName) {
+            return $registration->CanResolve($classOrInterfaceName);
         }));
     }
 
@@ -89,7 +104,7 @@ class Container {
     /**
      * Resolve all the instances of a registered class or interface.
      *
-     * @param $classOrInterfaceName The class to resolve
+     * @param $classOrInterfaceName The class or interface to resolve
      * @return array List of all objects that could be resolved.
      */
     public function resolveAll($classOrInterfaceName)

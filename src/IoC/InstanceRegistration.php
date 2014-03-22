@@ -2,6 +2,11 @@
 
 namespace DC\IoC;
 
+/**
+ * Registers a single instance.
+ *
+ * @package DC\IoC
+ */
 class InstanceRegistration extends Registration {
 
     private $instance;
@@ -13,12 +18,17 @@ class InstanceRegistration extends Registration {
         parent::withPerResolveLifetime();
     }
 
-    function to($className)
+    /**
+     * @param string $classOrInterfaceName
+     * @return IRegistration
+     * @throws \InvalidArgumentException
+     */
+    function to($classOrInterfaceName)
     {
-        if (!is_subclass_of($this->instance, $className)) {
-            throw new \InvalidArgumentException("Registered object does not implement or extend $className");
+        if (!is_subclass_of($this->instance, $classOrInterfaceName)) {
+            throw new \InvalidArgumentException("Registered object does not implement or extend $classOrInterfaceName");
         }
-        return parent::to($className);
+        return parent::to($classOrInterfaceName);
     }
 
     function create()
