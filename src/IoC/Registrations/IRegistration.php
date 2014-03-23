@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
 /**
  * Exposes operations meant for registering objects with the container.

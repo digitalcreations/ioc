@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Lifetime;
 
 /**
  * Will call create() on the registration anytime a resolve is attempted.

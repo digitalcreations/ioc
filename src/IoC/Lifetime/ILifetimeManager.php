@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Lifetime;
 
 interface ILifetimeManager {
     function resolve();

@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Lifetime;
 
 /**
  * Lifetime manager that produces the same instance throughout its lifetime.

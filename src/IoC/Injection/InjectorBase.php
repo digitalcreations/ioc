@@ -6,15 +6,15 @@
  * Time: 7:07 PM
  */
 
-namespace DC\IoC;
+namespace DC\IoC\Injection;
 
 abstract class InjectorBase {
     /**
-     * @var Container
+     * @var \DC\IoC\Container
      */
     protected $container;
 
-    public function __construct(Container $container) {
+    public function __construct(\DC\IoC\Container $container) {
 
         $this->container = $container;
     }

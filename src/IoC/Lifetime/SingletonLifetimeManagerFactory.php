@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Lifetime;
 
 /**
  * Factory to produce a singleton ExtendedLifetimeManager
@@ -14,9 +14,9 @@ class SingletonLifetimeManagerFactory {
     /**
      * @param $key
      * @param IRegistrationLookup $registration
-     * @return ILifetimeManager
+     * @return \DC\IoC\Lifetime\ILifetimeManager
      */
-    public static function getForKey($key, IRegistrationLookup $registration) {
+    public static function getForKey($key, \DC\IoC\Registrations\IRegistrationLookup $registration) {
         if (!isset(self::$registrations[$key])) {
             self::$registrations[$key] = new ExtendedLifetimeManager($registration);
         }

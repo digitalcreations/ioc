@@ -117,7 +117,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \DC\IoC\Exceptions\MultipleRegistrationsFoundException
      */
     public function testResolveThrowsOnMultipleRegistrations() {
         $container = new \DC\IoC\Container();
@@ -127,7 +127,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \DC\IoC\Exceptions\CannotResolveException
      */
     public function testResolveNonRegisteredConstructorLess() {
         $container = new \DC\IoC\Container();
@@ -188,7 +188,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \DC\IoC\Exceptions\CannotResolveException
      */
     public function testConstructorThrowsForNonRegistration() {
         $container = new \DC\IoC\Container();

@@ -1,11 +1,11 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Lifetime;
 
 abstract class LifetimeManager implements ILifetimeManager {
     protected $registration;
 
-    function __construct(IRegistrationLookup $registration)
+    function __construct(\DC\IoC\Registrations\IRegistrationLookup $registration)
     {
         $this->registration = $registration;
     }

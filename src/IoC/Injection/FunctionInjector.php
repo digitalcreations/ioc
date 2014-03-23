@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Injection;
 
 class FunctionInjector extends InjectorBase {
     public function run(callable $function) {
@@ -10,18 +10,18 @@ class FunctionInjector extends InjectorBase {
         foreach ($reflectionParameters as $reflectionParameter) {
             $parameterClass = $reflectionParameter->getClass();
             if ($parameterClass == null) {
-                $name = $this->getParameterClassFromPhpDoc($reflectionFunction, $reflectionParameter->getName());
+                $type = $this->getParameterClassFromPhpDoc($reflectionFunction, $reflectionParameter->getName());
             } else {
-                $name = $parameterClass->getName();
+                $type = '\\'.$parameterClass->getName();
             }
-            if ($name == null) {
-                throw new \InvalidArgumentException("Could not determine type for property $reflectionParameter->getName() while resolving $className");
+            if ($type == null) {
+                throw new \DC\IoC\Exceptions\InjectorException("function", $reflectionParameter->getName(), $type);
             }
 
-            if (preg_match('/\[\]$/', $name)) {
-                $dependency = $this->container->resolveAll(substr($name, 0, count($name)-3));
+            if (preg_match('/\[\]$/', $type)) {
+                $dependency = $this->container->resolveAll(substr($type, 0, count($type)-3));
             } else {
-                $dependency = $this->container->resolve($name);
+                $dependency = $this->container->resolve($type);
             }
             $arguments[] = $dependency;
         }

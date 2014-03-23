@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
 /**
  * Describes a registration from the point of view of the container.

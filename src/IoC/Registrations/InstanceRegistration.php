@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
 /**
  * Registers a single instance.
@@ -11,10 +11,10 @@ class InstanceRegistration extends Registration {
 
     private $instance;
 
-    function __construct($instance, Container $container)
+    function __construct($instance, \Dc\IoC\Container $container)
     {
         $this->instance = $instance;
-        parent::__construct(get_class($instance), $container);
+        parent::__construct('\\'.get_class($instance), $container);
         parent::withPerResolveLifetime();
     }
 

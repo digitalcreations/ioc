@@ -1,8 +1,8 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
-abstract class Registration implements IRegistration {
+abstract class Registration implements IRegistrationLookup {
     /**
      * @var Container
      */
@@ -14,29 +14,37 @@ abstract class Registration implements IRegistration {
      */
     protected $lifetimeManager;
 
-    protected function __construct($boundAs, Container $container)
+    protected function __construct($boundAs, \Dc\IoC\Container $container)
     {
-        $this->boundAs = $container->normalizeClassName($boundAs);
         $this->container = $container;
+        $this->setBoundAs($boundAs);
+    }
+
+    protected function setBoundAs($boundAs) {
+        if ($boundAs != null && !class_exists($boundAs) && !interface_exists($boundAs))
+        {
+            throw new \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException($boundAs);
+        }
+        $this->boundAs = $boundAs;
     }
 
     public abstract function create();
 
     function to($classOrInterfaceName)
     {
-        $this->boundAs = $this->container->normalizeClassName($classOrInterfaceName);
+        $this->setBoundAs($classOrInterfaceName);
         return $this;
     }
 
     function withSingletonLifetime()
     {
-        $this->lifetimeManager = SingletonLifetimeManagerFactory::getForKey($this->boundAs, $this);
+        $this->lifetimeManager = \DC\IoC\Lifetime\SingletonLifetimeManagerFactory::getForKey($this->boundAs, $this);
         return $this;
     }
 
     function withPerResolveLifetime()
     {
-        $this->lifetimeManager = new PerResolveLifetimeManager($this);
+        $this->lifetimeManager = new \DC\IoC\Lifetime\PerResolveLifetimeManager($this);
         return $this;
     }
 

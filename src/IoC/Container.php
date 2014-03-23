@@ -9,7 +9,7 @@ namespace DC\IoC;
  */
 class Container {
     /**
-     * @var IRegistrationLookup[]
+     * @var Registrations\IRegistrationLookup[]
      */
     private $registry = array();
     /**
@@ -17,23 +17,15 @@ class Container {
      */
     private $lifetimeRegistrations = array();
 
-    private function addRegistration(Registration $registration) {
+    private function addRegistration(Registrations\Registration $registration) {
         $this->registry[] = $registration;
-    }
-
-    public function normalizeClassName($classOrInterfaceName) {
-        if (strpos($classOrInterfaceName, '\\') !== false && $classOrInterfaceName[0] !== '\\') {
-            $classOrInterfaceName = '\\' . $classOrInterfaceName;
-        }
-        return $classOrInterfaceName;
     }
 
     /**
      * @param $classOrInterfaceName The class or interface name to find registrations for.
-     * @return IRegistration[] Matching registrations
+     * @return Registrations\IRegistration[] Matching registrations
      */
     private function findRegistrations($classOrInterfaceName) {
-        $classOrInterfaceName = $this->normalizeClassName($classOrInterfaceName);
         return array_values(array_filter($this->registry, function($registration) use ($classOrInterfaceName) {
             return $registration->CanResolve($classOrInterfaceName);
         }));
@@ -41,12 +33,12 @@ class Container {
 
     /**
      * @param $key string The binding key.
-     * @param IRegistrationLookup $registration
+     * @param Registrations\IRegistrationLookup $registration
      * @return ContainerLifetimeManager
      */
-    public function getContainerLifetimeManagerForKey($key, IRegistrationLookup $registration) {
+    public function getContainerLifetimeManagerForKey($key, Registrations\IRegistrationLookup $registration) {
         if (!isset($this->lifetimeRegistrations[$key])) {
-            $this->lifetimeRegistrations[$key] = new ExtendedLifetimeManager($registration);
+            $this->lifetimeRegistrations[$key] = new Lifetime\ExtendedLifetimeManager($registration);
         }
         return $this->lifetimeRegistrations[$key];
     }
@@ -54,20 +46,21 @@ class Container {
     /**
      * Register a class, object or factory function for resolving.
      *
-     * @param $o string|object|callable
-     * @throws InvalidArgumentException
-     * @return IRegistration
+     * @param $o string|object|callable The class name, object or factory function to register.
+     * @throws \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException When the class name cannot be found (or is not fully qualified).
+     * @throws \InvalidArgumentException When the passed object isn't suitable for registration (e.g. passing an array)
+     * @return Registrations\IRegistration
      */
     public function register($o)
     {
         if (is_callable($o)) {
-            $registration = new FactoryRegistration($o, $this);
+            $registration = new Registrations\FactoryRegistration($o, $this);
         } elseif (is_string($o) && class_exists($o)) {
-            $registration = new ClassNameRegistration($o, $this);
+            $registration = new Registrations\ClassNameRegistration($o, $this);
         } elseif (is_object($o)) {
-            $registration = new InstanceRegistration($o, $this);
+            $registration = new Registrations\InstanceRegistration($o, $this);
         } else if (is_string($o) && strpos($o, '\\') === false) {
-            throw new \InvalidArgumentException("Could not find class name $o. Did you mean to use a fully qualified namespace?");
+            throw new Exceptions\InvalidClassOrInterfaceNameException($o);
         } else {
             throw new \InvalidArgumentException("Cannot register $o.");
         }
@@ -83,8 +76,9 @@ class Container {
      * constructor injection.
      *
      * @param $classOrInterfaceName string The class or interface name you want to resolve.
+     * @throws Exceptions\MultipleRegistrationsFoundException When multiple registrations were found.
+     * @throws Exceptions\CannotResolveException When no registrations were found.
      * @return object
-     * @throws \InvalidArgumentException When multiple registrations were found, or no registrations where found.
      */
     public function resolve($classOrInterfaceName)
     {
@@ -92,12 +86,12 @@ class Container {
         if (count($registrations) == 1) {
             return $registrations[0]->Resolve();
         } else if (count($registrations) > 1) {
-            throw new \InvalidArgumentException("More than 1 registration found for $classOrInterfaceName");
+            throw new Exceptions\MultipleRegistrationsFoundException($classOrInterfaceName);
         } else if (class_exists($classOrInterfaceName)) {
-            $injector = new ConstructorInjector($this);
+            $injector = new Injection\ConstructorInjector($this);
             return $injector->construct($classOrInterfaceName);
         } else {
-           throw new \InvalidArgumentException("Registration not found for $classOrInterfaceName");
+           throw new Exceptions\CannotResolveException($classOrInterfaceName);
         }
     }
 

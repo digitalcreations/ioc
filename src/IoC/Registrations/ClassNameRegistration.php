@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
 class ClassNameRegistration extends Registration {
 
@@ -9,7 +9,7 @@ class ClassNameRegistration extends Registration {
      */
     private $className;
 
-    function __construct($className, Container $container)
+    function __construct($className, \Dc\IoC\Container $container)
     {
         $this->className = $className;
         parent::__construct($className, $container);
@@ -26,7 +26,7 @@ class ClassNameRegistration extends Registration {
 
     function create()
     {
-        $oInjector = new ConstructorInjector($this->container);
+        $oInjector = new \DC\IoC\Injection\ConstructorInjector($this->container);
         return $oInjector->construct($this->className);
     }
 }

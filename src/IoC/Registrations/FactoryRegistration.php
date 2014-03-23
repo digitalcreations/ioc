@@ -1,6 +1,6 @@
 <?php
 
-namespace DC\IoC;
+namespace DC\IoC\Registrations;
 
 class FactoryRegistration extends Registration {
 
@@ -9,7 +9,7 @@ class FactoryRegistration extends Registration {
      */
     private $factory;
 
-    function __construct(callable $factory, Container $container)
+    function __construct(callable $factory, \DC\IoC\Container $container)
     {
         $this->factory = $factory;
         parent::__construct(null, $container);
@@ -18,7 +18,7 @@ class FactoryRegistration extends Registration {
 
     function create()
     {
-        $injector = new FunctionInjector($this->container);
+        $injector = new \DC\IoC\Injection\FunctionInjector($this->container);
         return $injector->run($this->factory);
     }
 }
