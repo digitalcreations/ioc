@@ -2,6 +2,24 @@
 
 This is a simple IoC container for PHP.
 
+## Installation
+
+```
+$ composer install dc/ioc
+```
+
+Or add it to `composer.json`:
+
+```
+"require": {
+	"dc/ioc": "0.*"
+}
+```
+
+```
+$ composer install
+```
+
 ## Registering
 
 You can register objects, classes and factory functions with the container.
@@ -94,6 +112,27 @@ class Trailer {
 	}
 }
 ```
+
+## Property injection
+
+All objects resolved through the container will have their non-static properties scanned for possible dependencies. To mark a property as injectable, it needs both a `@var` and a `@inject` PhpDoc declaration:
+
+```php
+class Car {
+   /**
+    * @inject
+    * @var \Trailer
+    */
+   private $trailer;
+}
+```
+
+For objects that haven't been resolved through the container (meaning objects you have constructed yourself), you can apply property injection using the `inject()` method:
+
+```php
+$car = new Car();
+$container->inject($car);
+``` 
 
 ## Factory injection
 
