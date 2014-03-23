@@ -2,7 +2,7 @@
 
 namespace DC\IoC\Injection;
 
-class ConstructorInjector extends InjectorBase {
+class ConstructorInjector extends InjectorBase implements IConstructorInjector {
     public function construct($className) {
         $reflectionClass = new \ReflectionClass($className);
         $reflectionConstructor = $reflectionClass->getConstructor();

@@ -2,7 +2,7 @@
 
 namespace DC\IoC\Injection;
 
-class FunctionInjector extends InjectorBase {
+class FunctionInjector extends InjectorBase implements IFunctionInjector {
     public function run(callable $function) {
         $reflectionFunction = new \ReflectionFunction($function);
         $reflectionParameters = $reflectionFunction->getParameters();

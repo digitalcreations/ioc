@@ -15,7 +15,6 @@ abstract class InjectorBase {
     protected $container;
 
     public function __construct(\DC\IoC\Container $container) {
-
         $this->container = $container;
     }
 

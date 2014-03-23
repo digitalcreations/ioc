@@ -1,6 +1,8 @@
 <?php
 
 namespace DC\IoC;
+use DC\IoC\Injection\ConstructorInjector;
+use DC\IoC\Injection\FunctionInjector;
 
 /**
  * Simple IoC container.
@@ -13,9 +15,22 @@ class Container {
      */
     private $registry = array();
     /**
-     * @var ExtendedLifetimeManager[] Life time managers for items with container lifetime.
+     * @var Lifetime\IExtendedLifetimeManagerFactory
      */
-    private $lifetimeRegistrations = array();
+    private $containerLifetimeManager;
+    /**
+     * @var Lifetime\IExtendedLifetimeManagerFactory
+     */
+    private static $singletonLifetimeManager;
+
+    function __construct()
+    {
+        $this->containerLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
+        if (self::$singletonLifetimeManager == null)
+        {
+            self::$singletonLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
+        }
+    }
 
     private function addRegistration(Registrations\Registration $registration) {
         $this->registry[] = $registration;
@@ -32,18 +47,6 @@ class Container {
     }
 
     /**
-     * @param $key string The binding key.
-     * @param Registrations\IRegistrationLookup $registration
-     * @return ContainerLifetimeManager
-     */
-    public function getContainerLifetimeManagerForKey($key, Registrations\IRegistrationLookup $registration) {
-        if (!isset($this->lifetimeRegistrations[$key])) {
-            $this->lifetimeRegistrations[$key] = new Lifetime\ExtendedLifetimeManager($registration);
-        }
-        return $this->lifetimeRegistrations[$key];
-    }
-
-    /**
      * Register a class, object or factory function for resolving.
      *
      * @param $o string|object|callable The class name, object or factory function to register.
@@ -54,11 +57,11 @@ class Container {
     public function register($o)
     {
         if (is_callable($o)) {
-            $registration = new Registrations\FactoryRegistration($o, $this);
+            $registration = new Registrations\FactoryRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager, new FunctionInjector($this));
         } elseif (is_string($o) && class_exists($o)) {
-            $registration = new Registrations\ClassNameRegistration($o, $this);
+            $registration = new Registrations\ClassNameRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager, new ConstructorInjector($this));
         } elseif (is_object($o)) {
-            $registration = new Registrations\InstanceRegistration($o, $this);
+            $registration = new Registrations\InstanceRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager);
         } else if (is_string($o) && strpos($o, '\\') === false) {
             throw new Exceptions\InvalidClassOrInterfaceNameException($o);
         } else {

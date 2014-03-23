@@ -7,21 +7,24 @@ class RegistrationTest extends \PHPUnit_Framework_TestCase {
      * @expectedException \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException
      */
     public function testRegistrationThrowsOnNonExistentClass() {
-        $mockContainer = $this->getMock('\DC\IoC\Container');
-        new \DC\IoC\Registrations\ClassNameRegistration("Foo!", $mockContainer);
+        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
+        new \DC\IoC\Registrations\ClassNameRegistration("Foo!", $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
     }
 
     /**
      * @expectedException \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException
      */
     public function testRegistrationThrowsOnNonIncompleteClassName() {
-        $mockContainer = $this->getMock('\DC\IoC\Container');
-        new \DC\IoC\Registrations\ClassNameRegistration("RegistrationTest", $mockContainer);
+        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
+        new \DC\IoC\Registrations\ClassNameRegistration("RegistrationTest", $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
     }
 
     public function testRegistrationSucceeds() {
-        $mockContainer = $this->getMock('\DC\IoC\Container');
-        $registration = new \DC\IoC\Registrations\ClassNameRegistration('\DC\Tests\IoC\Foo', $mockContainer);
+        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
+        $registration = new \DC\IoC\Registrations\ClassNameRegistration('\DC\Tests\IoC\Foo', $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
         $this->assertTrue($registration->canResolve('\DC\Tests\IoC\Foo'));
     }
 }

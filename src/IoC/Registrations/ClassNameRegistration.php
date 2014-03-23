@@ -8,12 +8,20 @@ class ClassNameRegistration extends Registration {
      * @var string
      */
     private $className;
+    /**
+     * @var \DC\IoC\Injection\ConstructorInjector
+     */
+    private $constructorInjector;
 
-    function __construct($className, \Dc\IoC\Container $container)
+    function __construct($className,
+                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
+                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory,
+                         \DC\IoC\Injection\IConstructorInjector $constructorInjector)
     {
         $this->className = $className;
-        parent::__construct($className, $container);
+        parent::__construct($className, $containerLifetimeManagerFactory, $singletonLifetimeManagerFactory);
         $this->withPerResolveLifetime();
+        $this->constructorInjector = $constructorInjector;
     }
 
     function to($classOrInterfaceName)
@@ -26,7 +34,6 @@ class ClassNameRegistration extends Registration {
 
     function create()
     {
-        $oInjector = new \DC\IoC\Injection\ConstructorInjector($this->container);
-        return $oInjector->construct($this->className);
+        return $this->constructorInjector->construct($this->className);
     }
 }

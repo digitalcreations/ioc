@@ -11,10 +11,12 @@ class InstanceRegistration extends Registration {
 
     private $instance;
 
-    function __construct($instance, \Dc\IoC\Container $container)
+    function __construct($instance,
+                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
+                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory)
     {
         $this->instance = $instance;
-        parent::__construct('\\'.get_class($instance), $container);
+        parent::__construct('\\'.get_class($instance), $containerLifetimeManagerFactory, $singletonLifetimeManagerFactory);
         parent::withPerResolveLifetime();
     }
 

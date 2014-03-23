@@ -2,21 +2,29 @@
 
 namespace DC\IoC\Registrations;
 
-abstract class Registration implements IRegistrationLookup {
-    /**
-     * @var Container
-     */
-    protected $container;
+use DC\IoC\Lifetime\PerResolveLifetimeManager;
 
+abstract class Registration implements IRegistrationLookup {
     protected $boundAs;
     /**
      * @var ILifetimeManager
      */
     protected $lifetimeManager;
+    /**
+     * @var \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory
+     */
+    private $containerLifetimeManagerFactory;
+    /**
+     * @var \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory
+     */
+    private $singletonLifetimeManagerFactory;
 
-    protected function __construct($boundAs, \Dc\IoC\Container $container)
+    protected function __construct($boundAs,
+                                   \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
+                                   \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory)
     {
-        $this->container = $container;
+        $this->containerLifetimeManagerFactory = $containerLifetimeManagerFactory;
+        $this->singletonLifetimeManagerFactory = $singletonLifetimeManagerFactory;
         $this->setBoundAs($boundAs);
     }
 
@@ -38,19 +46,19 @@ abstract class Registration implements IRegistrationLookup {
 
     function withSingletonLifetime()
     {
-        $this->lifetimeManager = \DC\IoC\Lifetime\SingletonLifetimeManagerFactory::getForKey($this->boundAs, $this);
+        $this->lifetimeManager = $this->singletonLifetimeManagerFactory->getLifetimeManagerForKey($this->boundAs, $this);
         return $this;
     }
 
     function withPerResolveLifetime()
     {
-        $this->lifetimeManager = new \DC\IoC\Lifetime\PerResolveLifetimeManager($this);
+        $this->lifetimeManager = new PerResolveLifetimeManager($this);
         return $this;
     }
 
     function withContainerLifetime()
     {
-        $this->lifetimeManager = $this->container->getContainerLifetimeManagerForKey($this->boundAs, $this);
+        $this->lifetimeManager = $this->containerLifetimeManagerFactory->getLifetimeManagerForKey($this->boundAs, $this);
         return $this;
     }
 
