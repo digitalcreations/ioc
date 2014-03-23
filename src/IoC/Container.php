@@ -3,6 +3,7 @@
 namespace DC\IoC;
 use DC\IoC\Injection\ConstructorInjector;
 use DC\IoC\Injection\FunctionInjector;
+use DC\IoC\Injection\PropertyInjector;
 
 /**
  * Simple IoC container.
@@ -14,6 +15,8 @@ class Container {
      * @var Registrations\IRegistrationLookup[]
      */
     private $registry = array();
+    private $propertyInjector;
+
     /**
      * @var Lifetime\IExtendedLifetimeManagerFactory
      */
@@ -25,6 +28,7 @@ class Container {
 
     function __construct()
     {
+        $this->propertyInjector = new Injection\PropertyInjector($this);
         $this->containerLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
         if (self::$singletonLifetimeManager == null)
         {
@@ -87,21 +91,33 @@ class Container {
     {
         $registrations = $this->findRegistrations($classOrInterfaceName);
         if (count($registrations) == 1) {
-            return $registrations[0]->Resolve();
+            $object = $registrations[0]->Resolve();
         } else if (count($registrations) > 1) {
             throw new Exceptions\MultipleRegistrationsFoundException($classOrInterfaceName);
         } else if (class_exists($classOrInterfaceName)) {
             $injector = new Injection\ConstructorInjector($this);
-            return $injector->construct($classOrInterfaceName);
+            $object = $injector->construct($classOrInterfaceName);
         } else {
            throw new Exceptions\CannotResolveException($classOrInterfaceName);
         }
+        $this->propertyInjector->inject($object);
+        return $object;
+    }
+
+    /**
+     * Inject properties into an object.
+     *
+     * @param $object The object to have its properties injected
+     * @throws Exceptions\InjectorException
+     */
+    public function inject($object) {
+        $this->propertyInjector->inject($object);
     }
 
     /**
      * Resolve all the instances of a registered class or interface.
      *
-     * @param $classOrInterfaceName The class or interface to resolve
+     * @param $classOrInterfaceName string The class or interface to resolve
      * @return array List of all objects that could be resolved.
      */
     public function resolveAll($classOrInterfaceName)
