@@ -114,3 +114,11 @@ $container->register(
 		return new Bar($foos);
 	})->to('\Bar');
 ```
+
+## Performance
+
+Some crude performance tests can be found in the `perf/` folder of this repos. They show the following (numbers from a VM running on my machine):
+
+- A single registration uses about 600 bytes of memory, and takes 0.03 **ms**. *Unless you are registering thousands of services, speed and memory should not be a limiting factor*. For a typical setup with less than a hundred registrations per page view, you should expect it to add less than 25 ms to your bottom line in most cases.
+- Resolves are negligible. A `resolveAll`-call that returns 10 objects, takes on average 0.09 **ms** (to resolve 10 objects).
+- Constructor and function injection is done using reflection, which is often assumed to be slow. Again, to resolve a single interface takes 0.06 **ms**.
