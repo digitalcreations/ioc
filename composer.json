@@ -3,6 +3,7 @@
     "description": "Simple IoC container",
     "keywords": ["ioc", "inversion of control", "di", "dependency injection"],
     "homepage": "http://github.com/digitalcreations/ioc",
+    "license": "MIT",
     "authors": [
         {
             "name": "Digital Creations AS",
