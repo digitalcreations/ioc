@@ -1,6 +1,4 @@
-# Simple IoC container for PHP
-
-This is a simple IoC container for PHP.
+![DC\IoC - IoC container for PHP](logo.png)
 
 ## Installation
 
