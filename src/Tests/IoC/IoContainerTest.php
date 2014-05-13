@@ -11,6 +11,9 @@ class Foo implements IFoo {
         Foo::$constructed = true;
     }
 }
+class Foo2 implements IFoo {
+
+}
 
 class Bar {
 
@@ -114,6 +117,28 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $instances = $container->resolveAll('\DC\Tests\IoC\IFoo');
         $this->assertEquals(2, count($instances));
         $this->assertFalse($instances[0] === $instances[1]);
+    }
+
+    public function testResolveAllWithMultipleClassRegistrationsWithContainerLifetime() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo')->withContainerLifetime();
+        $container->register('\DC\Tests\IoC\Foo2')->to('\DC\Tests\IoC\IFoo')->withContainerLifetime();
+
+        $instances = $container->resolveAll('\DC\Tests\IoC\IFoo');
+        $this->assertEquals(2, count($instances));
+        $this->assertInstanceOf('\DC\Tests\IoC\Foo', $instances[0]);
+        $this->assertInstanceOf('\DC\Tests\IoC\Foo2', $instances[1]);
+    }
+
+    public function testResolveAllWithMultipleFactoryRegistrationsWithSingletonLifetime() {
+        $container = new \DC\IoC\Container();
+        $container->register(function() { return new Foo(); })->to('\DC\Tests\IoC\IFoo')->withSingletonLifetime();
+        $container->register(function() { return new Foo2(); })->to('\DC\Tests\IoC\IFoo')->withSingletonLifetime();
+
+        $instances = $container->resolveAll('\DC\Tests\IoC\IFoo');
+        $this->assertEquals(2, count($instances));
+        $this->assertInstanceOf('\DC\Tests\IoC\Foo', $instances[0]);
+        $this->assertInstanceOf('\DC\Tests\IoC\Foo2', $instances[1]);
     }
 
     /**

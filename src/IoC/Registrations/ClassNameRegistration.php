@@ -24,6 +24,11 @@ class ClassNameRegistration extends Registration {
         $this->constructorInjector = $constructorInjector;
     }
 
+    protected function getLifetimeManagerKey()
+    {
+        return $this->boundAs.'-'.$this->className;
+    }
+
     function to($classOrInterfaceName)
     {
         if (!is_subclass_of($this->className, $classOrInterfaceName)) {

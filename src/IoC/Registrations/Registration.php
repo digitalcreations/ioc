@@ -36,6 +36,10 @@ abstract class Registration implements IRegistrationLookup {
         $this->boundAs = $boundAs;
     }
 
+    protected function getLifetimeManagerKey() {
+        return $this->boundAs;
+    }
+
     public abstract function create();
 
     function to($classOrInterfaceName)
@@ -46,7 +50,7 @@ abstract class Registration implements IRegistrationLookup {
 
     function withSingletonLifetime()
     {
-        $this->lifetimeManager = $this->singletonLifetimeManagerFactory->getLifetimeManagerForKey($this->boundAs, $this);
+        $this->lifetimeManager = $this->singletonLifetimeManagerFactory->getLifetimeManagerForKey($this->getLifetimeManagerKey(), $this);
         return $this;
     }
 
@@ -58,7 +62,7 @@ abstract class Registration implements IRegistrationLookup {
 
     function withContainerLifetime()
     {
-        $this->lifetimeManager = $this->containerLifetimeManagerFactory->getLifetimeManagerForKey($this->boundAs, $this);
+        $this->lifetimeManager = $this->containerLifetimeManagerFactory->getLifetimeManagerForKey($this->getLifetimeManagerKey(), $this);
         return $this;
     }
 

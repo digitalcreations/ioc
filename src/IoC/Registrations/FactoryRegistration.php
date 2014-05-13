@@ -24,6 +24,11 @@ class FactoryRegistration extends Registration {
         $this->functionInjector = $functionInjector;
     }
 
+    protected function getLifetimeManagerKey()
+    {
+        return $this->boundAs.'-'.spl_object_hash($this->factory);
+    }
+
     function create()
     {
         return $this->functionInjector->run($this->factory);
