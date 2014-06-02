@@ -21,9 +21,9 @@ abstract class InjectorBase {
     protected function getParameterClassFromPhpDoc(\ReflectionFunctionAbstract $reflectionMethod, $parameterName) {
         $phpDoc = $reflectionMethod->getDocComment();
         if (preg_match_all('/^\s+\*\s+@param\s+\$?(.+?)\s+(?:array\|)?(\S+)/im', $phpDoc, $results, PREG_SET_ORDER)) {
-            $matches = array_filter($results, function($r) use ($parameterName) {
+            $matches = array_values(array_filter($results, function($r) use ($parameterName) {
                 return $r[1] == $parameterName;
-            });
+            }));
             if (count($matches) == 1) {
                 return $matches[0][2];
             }
