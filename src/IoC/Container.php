@@ -3,7 +3,6 @@
 namespace DC\IoC;
 use DC\IoC\Injection\ConstructorInjector;
 use DC\IoC\Injection\FunctionInjector;
-use DC\IoC\Injection\PropertyInjector;
 
 /**
  * Simple IoC container.
@@ -15,7 +14,14 @@ class Container {
      * @var Registrations\IRegistrationLookup[]
      */
     private $registry = array();
+    /**
+     * @var Injection\IPropertyInjector
+     */
     private $propertyInjector;
+    /**
+     * @var Injection\IFunctionInjector
+     */
+    private $functionInjector;
 
     /**
      * @var Lifetime\IExtendedLifetimeManagerFactory
@@ -29,6 +35,7 @@ class Container {
     function __construct()
     {
         $this->propertyInjector = new Injection\PropertyInjector($this);
+        $this->functionInjector = new Injection\FunctionInjector($this);
         $this->containerLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
         if (self::$singletonLifetimeManager == null)
         {
@@ -105,13 +112,19 @@ class Container {
     }
 
     /**
-     * Inject properties into an object.
+     * Inject properties into an object or invoke a function with parameters injected.
      *
-     * @param $object The object to have its properties injected
+     * @param $object object|callable The object or function to have its properties injected
      * @throws Exceptions\InjectorException
      */
     public function inject($object) {
-        $this->propertyInjector->inject($object);
+
+        if (is_callable($object)) {
+            $this->functionInjector->run($object);
+        }
+        else {
+            $this->propertyInjector->inject($object);
+        }
     }
 
     /**
