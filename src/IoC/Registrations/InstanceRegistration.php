@@ -40,17 +40,17 @@ class InstanceRegistration extends Registration {
 
     function withPerResolveLifetime()
     {
-        throw new InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
     function withSingletonLifetime()
     {
-        throw new InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
     function withContainerLifetime()
     {
-        throw new InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
 
