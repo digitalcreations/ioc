@@ -3,12 +3,19 @@
 namespace DC\IoC\Injection;
 
 class FunctionInjector extends InjectorBase implements IFunctionInjector {
-    public function run(callable $function) {
+    public function run(callable $function, array $parameters = []) {
         $reflectionFunction = new \ReflectionFunction($function);
         $reflectionParameters = $reflectionFunction->getParameters();
         $arguments = array();
         foreach ($reflectionParameters as $reflectionParameter) {
             $parameterClass = $reflectionParameter->getClass();
+            $parameterName = $reflectionParameter->getName();
+
+            if (isset($parameters[$parameterName])) {
+                $arguments[] = $parameters[$parameterName];
+                continue;
+            }
+
             if ($parameterClass == null) {
                 $type = $this->getParameterClassFromPhpDoc($reflectionFunction, $reflectionParameter->getName());
             } else {

@@ -27,6 +27,15 @@ class ConstructorDependency {
     }
 }
 
+class UnresolvableConstructorDependency {
+    public $foo;
+    public $bar;
+    public function __construct(IFoo $foo, $bar) {
+        $this->foo = $foo;
+        $this->bar = $bar;
+    }
+}
+
 class ArrayConstructorDependency {
     /**
      * @var array|IFoo[]
@@ -212,6 +221,19 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance->foo);
     }
 
+    public function testConstructorInjectionWithParameters() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+        $container->register('\DC\Tests\IoC\UnresolvableConstructorDependency')
+            ->withParameters(["bar" => "bar"]);
+
+        $instance = $container->resolve('\DC\Tests\IoC\UnresolvableConstructorDependency');
+        $this->assertNotNull($instance);
+        $this->assertNotNull($instance->foo);
+        $this->assertEquals("bar", $instance->bar);
+        $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance->foo);
+    }
+
     /**
      * @expectedException \DC\IoC\Exceptions\CannotResolveException
      */
@@ -254,6 +276,21 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
                 $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo[0]);
                 return new Bar();
             })->to('\DC\Tests\IoC\Bar');
+
+        $container->resolve('\DC\Tests\IoC\Bar');
+    }
+
+    public function testFactoryRegistrationParameterInjection() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $container
+            ->register(function(IFoo $foo, $bar) {
+                $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo);
+                $this->assertEquals("bar", $bar);
+                return new Bar();
+            })->withParameters(["bar" => "bar"])
+            ->to('\DC\Tests\IoC\Bar');
 
         $container->resolve('\DC\Tests\IoC\Bar');
     }

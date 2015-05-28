@@ -13,6 +13,11 @@ class FactoryRegistration extends Registration {
      */
     private $functionInjector;
 
+    /**
+     * @var array
+     */
+    private $parameters = [];
+
     function __construct(callable $factory,
                          \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
                          \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory,
@@ -31,6 +36,15 @@ class FactoryRegistration extends Registration {
 
     function create()
     {
-        return $this->functionInjector->run($this->factory);
+        return $this->functionInjector->run($this->factory, $this->parameters);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function withParameters(array $parameters)
+    {
+        $this->parameters = $parameters;
+        return $this;
     }
 }

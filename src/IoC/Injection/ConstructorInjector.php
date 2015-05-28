@@ -3,7 +3,7 @@
 namespace DC\IoC\Injection;
 
 class ConstructorInjector extends InjectorBase implements IConstructorInjector {
-    public function construct($className) {
+    public function construct($className, array $parameters = []) {
         $reflectionClass = new \ReflectionClass($className);
         $reflectionConstructor = $reflectionClass->getConstructor();
         if ($reflectionConstructor != null) {
@@ -13,6 +13,13 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                 $arguments = array();
                 foreach ($reflectionParameters as $reflectionParameter) {
                     $parameterClass = $reflectionParameter->getClass();
+                    $parameterName = $reflectionParameter->getName();
+
+                    if (isset($parameters[$parameterName])) {
+                        $arguments[] = $parameters[$parameterName];
+                        continue;
+                    }
+
                     if ($parameterClass == null) {
                         $type = $this->getParameterClassFromPhpDoc($reflectionConstructor, $reflectionParameter->getName());
                     } else {

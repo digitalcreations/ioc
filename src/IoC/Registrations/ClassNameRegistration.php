@@ -13,6 +13,11 @@ class ClassNameRegistration extends Registration {
      */
     private $constructorInjector;
 
+    /**
+     * @var array
+     */
+    private $parameters = [];
+
     function __construct($className,
                          \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
                          \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory,
@@ -39,6 +44,15 @@ class ClassNameRegistration extends Registration {
 
     function create()
     {
-        return $this->constructorInjector->construct($this->className);
+        return $this->constructorInjector->construct($this->className, $this->parameters);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function withParameters(array $parameters)
+    {
+        $this->parameters = $parameters;
+        return $this;
     }
 }

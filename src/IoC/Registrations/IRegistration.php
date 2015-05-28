@@ -19,6 +19,14 @@ interface IRegistration {
     function to($classOrInterfaceName);
 
     /**
+     * Add parameters to constructor or factory function.
+     *
+     * @param array $parameters Named parameters to constructor (or factory method)
+     * @return IRegistration
+     */
+    function withParameters(array $parameters);
+
+    /**
      * Produce the same instance of the object throughout the script's lifetime.
      *
      * @return IRegistration

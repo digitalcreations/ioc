@@ -53,5 +53,11 @@ class InstanceRegistration extends Registration {
         throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
-
+    /**
+     * @inheritdoc
+     */
+    function withParameters(array $parameters)
+    {
+        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations cannot take parameters.");
+    }
 }
