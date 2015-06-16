@@ -300,10 +300,12 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
 
         $ran = false;
-        $container->inject(function(IFoo $foo) use (&$ran) {
+        $result = $container->inject(function(IFoo $foo) use (&$ran) {
             $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo);
             $ran = true;
+            return true;
         });
         $this->assertTrue($ran);
+        $this->assertTrue($result);
     }
 } 

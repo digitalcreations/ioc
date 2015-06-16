@@ -114,16 +114,18 @@ class Container {
     /**
      * Inject properties into an object or invoke a function with parameters injected.
      *
-     * @param $object object|callable The object or function to have its properties injected
+     * @param $object object|callable The object or function to have its properties/arguments injected
+     * @return object Returns the object, or the result of the function
      * @throws Exceptions\InjectorException
      */
     public function inject($object) {
 
         if (is_callable($object)) {
-            $this->functionInjector->run($object);
+            return $this->functionInjector->run($object);
         }
         else {
             $this->propertyInjector->inject($object);
+            return $object;
         }
     }
 
