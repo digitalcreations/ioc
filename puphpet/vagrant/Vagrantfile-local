@@ -1,9 +1,13 @@
+# -*- mode: ruby -*-
+
 vagrant_home = (ENV['VAGRANT_HOME'].to_s.split.join.length > 0) ? ENV['VAGRANT_HOME'] : "#{ENV['HOME']}/.vagrant.d"
 vagrant_dot  = (ENV['VAGRANT_DOTFILE_PATH'].to_s.split.join.length > 0) ? ENV['VAGRANT_DOTFILE_PATH'] : "#{dir}/.vagrant"
 
 Vagrant.configure('2') do |config|
   config.vm.box     = "#{data['vm']['box']}"
   config.vm.box_url = "#{data['vm']['box_url']}"
+
+  config.ssh.insert_key = data['ssh']['insert_key']
 
   if data['vm']['hostname'].to_s.strip.length != 0
     config.vm.hostname = "#{data['vm']['hostname']}"
@@ -14,7 +18,10 @@ Vagrant.configure('2') do |config|
   end
   
   if data['vm']['network']['public_network'].to_s != ''
-    config.vm.network 'public_network', ip: "#{data['vm']['network']['public_network']}"
+    config.vm.network 'public_network'
+    if data['vm']['network']['public_network'].to_s != '1'
+      config.vm.network 'public_network', ip: "#{data['vm']['network']['public_network']}"
+    end
   end
 
   data['vm']['network']['forwarded_port'].each do |i, port|
@@ -49,7 +56,7 @@ Vagrant.configure('2') do |config|
         hosts.push(vhost['server_name'])
 
         if vhost['server_aliases'].is_a?(Array)
-          vhost['server_aliases'].each do |x, vhost_alias|
+          vhost['server_aliases'].each do |vhost_alias|
             hosts.push(vhost_alias)
           end
         end
@@ -66,6 +73,8 @@ Vagrant.configure('2') do |config|
       config.hostmanager.ignore_private_ip = false
       config.hostmanager.include_offline   = false
       config.hostmanager.aliases           = hosts
+
+      config.vm.provision :hostmanager
     end
   end
 
@@ -81,14 +90,14 @@ Vagrant.configure('2') do |config|
       if folder['sync_type'] == 'nfs'
         if Vagrant.has_plugin?('vagrant-bindfs')
           config.vm.synced_folder "#{folder['source']}", "/mnt/vagrant-#{i}", id: "#{i}", type: 'nfs'
-          config.bindfs.bind_folder "/mnt/vagrant-#{i}", "#{folder['target']}", owner: sync_owner, group: sync_group, perms: "u=rwX:g=rwX:o=rD"
+          config.bindfs.bind_folder "/mnt/vagrant-#{i}", "#{folder['target']}", after: :provision, force_user: sync_owner, force_group: sync_group, perms: "u=rwX:g=rwX:o=rD", o: 'nonempty'
         else
           config.vm.synced_folder "#{folder['source']}", "#{folder['target']}", id: "#{i}", type: 'nfs'
         end
       elsif folder['sync_type'] == 'smb'
-        smb__host     = !folder['smb']['smb_host'].nil ? folder['smb']['smb_host'] : nil
-        smb__username = !folder['smb']['smb_username'].nil ? folder['smb']['smb_username'] : nil
-        smb__password = !folder['smb']['smb_password'].nil ? folder['smb']['smb_password'] : nil
+        smb__host     = !folder['smb']['smb_host'].nil? ? folder['smb']['smb_host'] : nil
+        smb__username = !folder['smb']['smb_username'].nil? ? folder['smb']['smb_username'] : nil
+        smb__password = !folder['smb']['smb_password'].nil? ? folder['smb']['smb_password'] : nil
 
         config.vm.synced_folder "#{folder['source']}", "#{folder['target']}", id: "#{i}", type: 'smb',
           group: sync_group, owner: sync_owner, smb_host: smb__host, smb_username: smb__username, smb_password: smb__password
@@ -147,6 +156,12 @@ Vagrant.configure('2') do |config|
         if data['vm']['hostname'].to_s.strip.length != 0
           virtualbox.customize ['modifyvm', :id, '--name', config.vm.hostname]
         end
+      end
+
+      virtualbox.customize ['setextradata', :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate//vagrant", '1']
+
+      data['vm']['synced_folder'].each do |i, folder|
+        virtualbox.customize ['setextradata', :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate//#{i}", '1']
       end
     end
   end
@@ -207,6 +222,7 @@ Vagrant.configure('2') do |config|
 
   ssh_username = !data['ssh']['username'].nil? ? data['ssh']['username'] : 'vagrant'
 
+  config.vm.provision :shell, :inline => "sed -i -e 's/\r$//' /vagrant/puphpet/shell/*.sh"
   config.vm.provision 'shell' do |s|
     s.path = 'puphpet/shell/initial-setup.sh'
     s.args = '/vagrant/puphpet'
@@ -216,7 +232,6 @@ Vagrant.configure('2') do |config|
     kg.args = "#{ssh_username}"
   end
   config.vm.provision :shell, :path => 'puphpet/shell/check-puppet-modules.sh'
-  config.vm.provision :shell, :path => 'puphpet/shell/install-ruby.sh'
   config.vm.provision :shell, :path => 'puphpet/shell/install-puppet.sh'
 
   config.vm.provision :puppet do |puppet|
@@ -226,7 +241,7 @@ Vagrant.configure('2') do |config|
       'provisioner_type' => ENV['VAGRANT_DEFAULT_PROVIDER'],
     }
     puppet.manifests_path = "#{data['vm']['provision']['puppet']['manifests_path']}"
-    puppet.manifest_file  = "#{data['vm']['provision']['puppet']['manifest_file']}"
+    puppet.manifest_file  = ""
     puppet.module_path    = "#{data['vm']['provision']['puppet']['module_path']}"
 
     if !data['vm']['provision']['puppet']['options'].empty?

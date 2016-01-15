@@ -6,7 +6,8 @@
  */
 
 define puphpet::php::pecl (
-  $service_autorestart
+  $service_autorestart,
+  $prefix = $puphpet::php::settings::pecl_prefix
 ){
 
   $ignore = {
@@ -44,31 +45,36 @@ define puphpet::php::pecl (
   $package = $::osfamily ? {
     'Debian' => {
       'apc'         => $::operatingsystem ? {
-        'debian' => 'php5-apc',
-        'ubuntu' => 'php5-apcu',
+        'debian' => "${prefix}apc",
+        'ubuntu' => "${prefix}apcu",
       },
-      'apcu'        => 'php5-apcu',
-      'imagick'     => 'php5-imagick',
-      'memcache'    => 'php5-memcache',
-      'memcached'   => 'php5-memcached',
+      'apcu'        => "${prefix}apcu",
+      'imagick'     => "${prefix}imagick",
+      'memcache'    => "${prefix}memcache",
+      'memcached'   => "${prefix}memcached",
       'mongo'       => $::lsbdistcodename ? {
         'precise' => false,
-        default   => 'php5-mongo',
+        default   => "${prefix}mongo",
       },
-      'redis'       => 'php5-redis',
-      'sqlite'      => 'php5-sqlite',
-      'zendopcache' => 'php5-zendopcache',
+      'redis'       => $puphpet::php::settings::version ? {
+        '54'    => false,
+        '5.4'   => false,
+        default => "${prefix}redis",
+      },
+      'sqlite'      => "${prefix}sqlite",
+      'zendopcache' => "${prefix}zendopcache",
     },
     'Redhat' => {
-      'apc'         => 'php-pecl-apcu',
-      'apcu'        => 'php-pecl-apcu',
-      'imagick'     => 'php-pecl-imagick',
-      'memcache'    => 'php-pecl-memcache',
-      'memcached'   => 'php-pecl-memcached',
-      'mongo'       => 'php-pecl-mongo',
-      'redis'       => 'php-pecl-redis',
-      'sqlite'      => 'php-pecl-sqlite',
-      'zendopcache' => 'php-pecl-zendopcache',
+      'amqp'        => "${prefix}amqp",
+      'apc'         => "${prefix}apcu",
+      'apcu'        => "${prefix}apcu",
+      'imagick'     => "${prefix}imagick",
+      'memcache'    => "${prefix}memcache",
+      'memcached'   => "${prefix}memcached",
+      'mongo'       => "${prefix}mongo",
+      'redis'       => "${prefix}redis",
+      'sqlite'      => "${prefix}sqlite",
+      'zendopcache' => "${prefix}zendopcache",
     }
   }
 
@@ -108,7 +114,7 @@ define puphpet::php::pecl (
     $package_name = false
   }
 
-  if $pecl_name and ! defined(::Php::Pecl::Module[$pecl_name])
+  if $pecl_name and ! defined(Php::Pecl::Module[$pecl_name])
     and $puphpet::php::settings::enable_pecl
   {
     ::php::pecl::module { $pecl_name:
