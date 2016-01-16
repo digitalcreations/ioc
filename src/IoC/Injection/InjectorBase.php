@@ -13,20 +13,36 @@ abstract class InjectorBase {
      * @var \DC\IoC\Container
      */
     protected $container;
+    /**
+     * @var \DC\Cache\ICache
+     */
+    protected $cache;
 
-    public function __construct(\DC\IoC\Container $container) {
+    public function __construct(\DC\IoC\Container $container, \DC\Cache\ICache $cache = null) {
         $this->container = $container;
+        $this->cache = $cache;
+    }
+
+    private $parameterTypes;
+    protected function getParameterClasses(\ReflectionFunctionAbstract $reflectionMethod) {
+        if (!isset($this->parameterTypes)) {
+            $phpDoc = new \phpDocumentor\Reflection\DocBlock($reflectionMethod);
+            $paramTags = $phpDoc->getTagsByName("param");
+            $this->parameterTypes = [];
+            foreach ($paramTags as $param) {
+                /** @var \phpDocumentor\Reflection\DocBlock\Tag\ParamTag $param */
+                $this->parameterTypes[$param->getVariableName()] = $param->getType();
+            }
+        }
+        return $this->parameterTypes;
     }
 
     protected function getParameterClassFromPhpDoc(\ReflectionFunctionAbstract $reflectionMethod, $parameterName) {
-        $phpDoc = $reflectionMethod->getDocComment();
-        if (preg_match_all('/^\s+\*\s+@param\s+\$?(.+?)\s+(?:array\|)?(\S+)/im', $phpDoc, $results, PREG_SET_ORDER)) {
-            $matches = array_values(array_filter($results, function($r) use ($parameterName) {
-                return $r[1] == $parameterName;
-            }));
-            if (count($matches) == 1) {
-                return $matches[0][2];
-            }
+        $types = $this->getParameterClasses($reflectionMethod);
+        $parameterName = '$' . ltrim($parameterName, '$');
+        if (isset($types[$parameterName])) {
+            return $types[$parameterName];
         }
+        return null;
     }
 } 

@@ -19,12 +19,11 @@ class ClassNameRegistration extends Registration {
     private $parameters = [];
 
     function __construct($className,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory,
+                         \DC\IoC\Lifetime\LifetimeManagerFactory $lifetimeManagerFactory,
                          \DC\IoC\Injection\IConstructorInjector $constructorInjector)
     {
         $this->className = $className;
-        parent::__construct($className, $containerLifetimeManagerFactory, $singletonLifetimeManagerFactory);
+        parent::__construct($className, $lifetimeManagerFactory);
         $this->withPerResolveLifetime();
         $this->constructorInjector = $constructorInjector;
     }
@@ -44,7 +43,7 @@ class ClassNameRegistration extends Registration {
 
     function create()
     {
-        return $this->constructorInjector->construct($this->className, $this->parameters);
+        return $this->constructorInjector->construct($this->parameters);
     }
 
     /**

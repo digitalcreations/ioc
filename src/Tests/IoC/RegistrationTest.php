@@ -7,24 +7,27 @@ class RegistrationTest extends \PHPUnit_Framework_TestCase {
      * @expectedException \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException
      */
     public function testRegistrationThrowsOnNonExistentClass() {
-        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockPropertyInjector = $this->getMock('\DC\IoC\Injection\IPropertyInjector');
+        $mockLifetimeManager = new \DC\IoC\Lifetime\LifetimeManagerFactory($mockPropertyInjector);
         $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
-        new \DC\IoC\Registrations\ClassNameRegistration("Foo!", $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
+        new \DC\IoC\Registrations\ClassNameRegistration("Foo!", $mockLifetimeManager, $mockConstructorInjector);
     }
 
     /**
      * @expectedException \DC\IoC\Exceptions\InvalidClassOrInterfaceNameException
      */
     public function testRegistrationThrowsOnNonIncompleteClassName() {
-        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockPropertyInjector = $this->getMock('\DC\IoC\Injection\IPropertyInjector');
+        $mockLifetimeManager = new \DC\IoC\Lifetime\LifetimeManagerFactory($mockPropertyInjector);
         $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
-        new \DC\IoC\Registrations\ClassNameRegistration("RegistrationTest", $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
+        new \DC\IoC\Registrations\ClassNameRegistration("RegistrationTest", $mockLifetimeManager, $mockConstructorInjector);
     }
 
     public function testRegistrationSucceeds() {
-        $mockLifetimeManager = $this->getMock('\DC\IoC\Lifetime\IExtendedLifetimeManagerFactory');
+        $mockPropertyInjector = $this->getMock('\DC\IoC\Injection\IPropertyInjector');
+        $mockLifetimeManager = new \DC\IoC\Lifetime\LifetimeManagerFactory($mockPropertyInjector);
         $mockConstructorInjector = $this->getMock('\DC\IoC\Injection\IConstructorInjector');
-        $registration = new \DC\IoC\Registrations\ClassNameRegistration('\DC\Tests\IoC\Foo', $mockLifetimeManager, $mockLifetimeManager, $mockConstructorInjector);
-        $this->assertTrue($registration->canResolve('\DC\Tests\IoC\Foo'));
+        $registration = new \DC\IoC\Registrations\ClassNameRegistration('\DC\Tests\IoC\Foo', $mockLifetimeManager, $mockConstructorInjector);
+        $this->assertEquals('\DC\Tests\IoC\Foo', $registration->getServiceType());
     }
 }

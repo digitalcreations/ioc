@@ -1,6 +1,7 @@
 <?php
 
 namespace DC\IoC\Registrations;
+use SebastianBergmann\Exporter\Exception;
 
 /**
  * Registers a single instance.
@@ -11,13 +12,10 @@ class InstanceRegistration extends Registration {
 
     private $instance;
 
-    function __construct($instance,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory)
+    function __construct($instance)
     {
         $this->instance = $instance;
-        parent::__construct('\\'.get_class($instance), $containerLifetimeManagerFactory, $singletonLifetimeManagerFactory);
-        parent::withPerResolveLifetime();
+        parent::__construct('\\'.get_class($instance), null);
     }
 
     /**
@@ -35,7 +33,7 @@ class InstanceRegistration extends Registration {
 
     function create()
     {
-        return $this->instance;
+        throw new Exception("Call to create() on instance registration. This method should never be called.");
     }
 
     function withPerResolveLifetime()
@@ -59,5 +57,10 @@ class InstanceRegistration extends Registration {
     function withParameters(array $parameters)
     {
         throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations cannot take parameters.");
+    }
+
+    function resolve()
+    {
+        return $this->instance;
     }
 }

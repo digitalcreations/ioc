@@ -11,10 +11,9 @@ interface IRegistrationLookup extends IRegistration {
     /**
      * Determine if this registration can resolve a given class or interface.
      *
-     * @param $classOrInterfaceName string The class or interface name to resolve
-     * @return bool True if this can resolve the $classOrInterfaceName
+     * @return string The name of the interface this is bound as.
      */
-    function canResolve($classOrInterfaceName);
+    function getServiceType();
 
     /**
      * Produce the instance and return it.

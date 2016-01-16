@@ -19,12 +19,11 @@ class FactoryRegistration extends Registration {
     private $parameters = [];
 
     function __construct(callable $factory,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
-                         \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory,
+                         \DC\IoC\Lifetime\LifetimeManagerFactory $lifetimeManagerFactory,
                          \DC\IoC\Injection\IFunctionInjector $functionInjector)
     {
         $this->factory = $factory;
-        parent::__construct(null, $containerLifetimeManagerFactory, $singletonLifetimeManagerFactory);
+        parent::__construct(null, $lifetimeManagerFactory);
         $this->withPerResolveLifetime();
         $this->functionInjector = $functionInjector;
     }

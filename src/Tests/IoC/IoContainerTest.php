@@ -43,7 +43,7 @@ class ArrayConstructorDependency {
     public $foos;
 
     /**
-     * @param $foos \DC\Tests\IoC\IFoo[]
+     * @param \DC\Tests\IoC\IFoo[] $foos
      */
     public function __construct(array $foos) {
 
@@ -215,7 +215,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $container = new \DC\IoC\Container();
         $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
 
-        $instance = $container->resolve('\DC\Tests\IOC\ConstructorDependency');
+        $instance = $container->resolve('\DC\Tests\IoC\ConstructorDependency');
         $this->assertNotNull($instance);
         $this->assertNotNull($instance->foo);
         $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance->foo);
@@ -270,7 +270,7 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
 
         $container->register(
             /**
-             * @param $foo \DC\Tests\IoC\IFoo[]
+             * @param \DC\Tests\IoC\IFoo[] $foo
              */
             function(array $foo) {
                 $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo[0]);

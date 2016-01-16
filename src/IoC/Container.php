@@ -1,8 +1,6 @@
 <?php
 
 namespace DC\IoC;
-use DC\IoC\Injection\ConstructorInjector;
-use DC\IoC\Injection\FunctionInjector;
 
 /**
  * Simple IoC container.
@@ -13,7 +11,14 @@ class Container {
     /**
      * @var Registrations\IRegistrationLookup[]
      */
-    private $registry = array();
+    private $registry = [];
+
+    /**
+     * Array with keys matching the registrations. Can be wiped and rebuilt at any time.
+     *
+     * @var Registrations\IRegistrationLookup[][]
+     */
+    private $registryLookup;
     /**
      * @var Injection\IPropertyInjector
      */
@@ -24,37 +29,53 @@ class Container {
     private $functionInjector;
 
     /**
-     * @var Lifetime\IExtendedLifetimeManagerFactory
+     * @var Lifetime\LifetimeManagerFactory
      */
-    private $containerLifetimeManager;
-    /**
-     * @var Lifetime\IExtendedLifetimeManagerFactory
-     */
-    private static $singletonLifetimeManager;
+    private $lifetimeManagerFactory;
 
-    function __construct()
+    /**
+     * @var \DC\Cache\ICache
+     */
+    private $cache;
+
+    function __construct(\DC\Cache\ICache $cache = null)
     {
-        $this->propertyInjector = new Injection\PropertyInjector($this);
-        $this->functionInjector = new Injection\FunctionInjector($this);
-        $this->containerLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
-        if (self::$singletonLifetimeManager == null)
-        {
-            self::$singletonLifetimeManager = new Lifetime\ExtendedLifetimeManagerFactory();
+        if ($cache == null) {
+            $cache = new RequestCache();
         }
+        $this->cache = $cache;
+
+        $this->propertyInjector = new Injection\PropertyInjector($this, $cache);
+        $this->functionInjector = new Injection\FunctionInjector($this, $cache);
+
+        $this->lifetimeManagerFactory = new Lifetime\LifetimeManagerFactory($this->propertyInjector);
     }
 
     private function addRegistration(Registrations\Registration $registration) {
         $this->registry[] = $registration;
+        $this->registryLookup = null;
     }
 
     /**
-     * @param $classOrInterfaceName The class or interface name to find registrations for.
+     * @param string $classOrInterfaceName The class or interface name to find registrations for.
      * @return Registrations\IRegistration[] Matching registrations
+     * @throws Exceptions\CannotResolveException
      */
     private function findRegistrations($classOrInterfaceName) {
-        return array_values(array_filter($this->registry, function($registration) use ($classOrInterfaceName) {
-            return $registration->CanResolve($classOrInterfaceName);
-        }));
+        if (!isset($this->registryLookup)) {
+            $this->registryLookup = [];
+            foreach ($this->registry as $registration) {
+                $serviceType = $registration->getServiceType();
+                if (!isset($this->registryLookup[$serviceType])) {
+                    $this->registryLookup[$serviceType] = [];
+                }
+                $this->registryLookup[$registration->getServiceType()][] = $registration;
+            }
+        }
+        if (isset($this->registryLookup[$classOrInterfaceName])) {
+            return $this->registryLookup[$classOrInterfaceName];
+        }
+        return [];
     }
 
     /**
@@ -68,11 +89,11 @@ class Container {
     public function register($o)
     {
         if (is_callable($o)) {
-            $registration = new Registrations\FactoryRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager, new FunctionInjector($this));
+            $registration = new Registrations\FactoryRegistration($o, $this->lifetimeManagerFactory, new Injection\FunctionInjector($this));
         } elseif (is_string($o) && class_exists($o)) {
-            $registration = new Registrations\ClassNameRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager, new ConstructorInjector($this));
+            $registration = new Registrations\ClassNameRegistration($o, $this->lifetimeManagerFactory, new Injection\ConstructorInjector($o, $this, $this->cache));
         } elseif (is_object($o)) {
-            $registration = new Registrations\InstanceRegistration($o, $this->containerLifetimeManager, self::$singletonLifetimeManager);
+            $registration = new Registrations\InstanceRegistration($o);
         } else if (is_string($o) && strpos($o, '\\') === false) {
             throw new Exceptions\InvalidClassOrInterfaceNameException($o);
         } else {
@@ -89,7 +110,7 @@ class Container {
      * This can also look up classes that haven't been registered, but all its dependencies are available via
      * constructor injection.
      *
-     * @param $classOrInterfaceName string The class or interface name you want to resolve.
+     * @param string $classOrInterfaceName The class or interface name you want to resolve.
      * @throws Exceptions\MultipleRegistrationsFoundException When multiple registrations were found.
      * @throws Exceptions\CannotResolveException When no registrations were found.
      * @return object
@@ -98,16 +119,15 @@ class Container {
     {
         $registrations = $this->findRegistrations($classOrInterfaceName);
         if (count($registrations) == 1) {
-            $object = $registrations[0]->Resolve();
+            $object = $registrations[0]->resolve();
         } else if (count($registrations) > 1) {
             throw new Exceptions\MultipleRegistrationsFoundException($classOrInterfaceName);
         } else if (class_exists($classOrInterfaceName)) {
-            $injector = new Injection\ConstructorInjector($this);
-            $object = $injector->construct($classOrInterfaceName);
+            $injector = new Injection\ConstructorInjector($classOrInterfaceName, $this, $this->cache);
+            $object = $injector->construct();
         } else {
            throw new Exceptions\CannotResolveException($classOrInterfaceName);
         }
-        $this->propertyInjector->inject($object);
         return $object;
     }
 
@@ -138,7 +158,7 @@ class Container {
     public function resolveAll($classOrInterfaceName)
     {
         return array_map(function($registration) {
-            return $registration->Resolve();
+            return $registration->resolve();
         }, $this->findRegistrations($classOrInterfaceName));
     }
 }

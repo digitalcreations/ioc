@@ -40,7 +40,7 @@ class PropertyInjectorTest extends \PHPUnit_Framework_TestCase {
                       ->method('resolveAll')
                       ->willReturn(array( new \stdClass() ));
 
-        $injector = new PropertyInjector($mockContainer);
+        $injector = new PropertyInjector($mockContainer, new \DC\IoC\RequestCache());
         $object = new PropertyInjectorModel();
         $injector->inject($object);
         $this->assertNotNull($object->foo);
@@ -56,7 +56,7 @@ class PropertyInjectorTest extends \PHPUnit_Framework_TestCase {
      */
     public function testInvalidInjectionMark() {
         $mockContainer = $this->getMock('\DC\IoC\Container');
-        $injector = new PropertyInjector($mockContainer);
+        $injector = new PropertyInjector($mockContainer, new \DC\IoC\RequestCache());
         $object = new InvalidPropertyInjectorModel();
         $injector->inject($object);
     }

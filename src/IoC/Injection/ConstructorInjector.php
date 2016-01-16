@@ -3,41 +3,72 @@
 namespace DC\IoC\Injection;
 
 class ConstructorInjector extends InjectorBase implements IConstructorInjector {
-    public function construct($className, array $parameters = []) {
-        $reflectionClass = new \ReflectionClass($className);
-        $reflectionConstructor = $reflectionClass->getConstructor();
-        if ($reflectionConstructor != null) {
-            $reflectionParameters = $reflectionConstructor->getParameters();
+    const PARAMETER = 42;
+    /**
+     * @var string
+     */
+    private $className;
 
-            if (count($reflectionParameters) > 0) {
-                $arguments = array();
-                foreach ($reflectionParameters as $reflectionParameter) {
-                    $parameterClass = $reflectionParameter->getClass();
-                    $parameterName = $reflectionParameter->getName();
+    public function __construct($className, \DC\IoC\Container $container, \DC\Cache\ICache $cache = null)
+    {
+        parent::__construct($container, $cache);
 
-                    if (isset($parameters[$parameterName])) {
-                        $arguments[] = $parameters[$parameterName];
-                        continue;
-                    }
+        $this->definition = $cache->getWithFallback("ioc-ci-" . $className, function() use ($className) {
+            $reflectionClass = new \ReflectionClass($className);
+            $reflectionConstructor = $reflectionClass->getConstructor();
 
-                    if ($parameterClass == null) {
-                        $type = $this->getParameterClassFromPhpDoc($reflectionConstructor, $reflectionParameter->getName());
-                    } else {
-                        $type = '\\'.$parameterClass->getName();
+            $definition = [];
+
+            if ($reflectionConstructor != null) {
+                $reflectionParameters = $reflectionConstructor->getParameters();
+
+                if (count($reflectionParameters) > 0) {
+                    foreach ($reflectionParameters as $reflectionParameter) {
+                        $parameterClass = $reflectionParameter->getClass();
+                        $parameterName = $reflectionParameter->getName();
+
+                        if (isset($parameterClass)) {
+                            $type = '\\' . $parameterClass->getName();
+                        } else {
+                            $type = $this->getParameterClassFromPhpDoc($reflectionConstructor, $parameterName);
+                        }
+
+                        $arrayLessType = rtrim($type, '[]');
+                        if (!empty($type) && !interface_exists($arrayLessType) && !class_exists($arrayLessType)) {
+                            throw new \DC\IoC\Exceptions\InjectorException($className, $reflectionParameter->getName(), $type);
+                        }
+
+                        $definition[] = [
+                            "name" => $parameterName,
+                            "class" => $type
+                        ];
                     }
-                    if ($type == null) {
-                        throw new \DC\IoC\Exceptions\InjectorException($className, $reflectionParameter->getName(), $type);
-                    }
-                    if (preg_match('/\[\]$/', $type)) {
-                        $dependency = $this->container->resolveAll(substr($type, 0, count($type)-3));
-                    } else {
-                        $dependency = $this->container->resolve($type);
-                    }
-                    $arguments[] = $dependency;
                 }
-                return $reflectionClass->newInstanceArgs($arguments);
+            }
+
+            return $definition;
+        });
+        $this->className = $className;
+    }
+
+    private $definition;
+
+    public function construct(array $parameters = []) {
+        $class = $this->className;
+        $params = [];
+        foreach ($this->definition as $d) {
+            if (!empty($d["class"])) {
+                if (preg_match('/\[\]$/', $d["class"])) {
+                    $params[] = $this->container->resolveAll(substr($d["class"], 0, count($d["class"])-3));
+                }
+                else {
+                    $params[] = $this->container->resolve($d["class"]);
+                }
+            }
+            else {
+                $params[] = $parameters[$d["name"]];
             }
         }
-        return new $className();
+        return new $class(...$params);
     }
 }

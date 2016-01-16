@@ -11,6 +11,8 @@ class PerResolveLifetimeManager extends LifetimeManager {
 
     function resolve()
     {
-        return $this->registration->create();
+        $object = $this->registration->create();
+//        $this->propertyInjector->inject($object);
+        return $object;
     }
 }

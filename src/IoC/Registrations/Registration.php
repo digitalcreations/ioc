@@ -2,30 +2,22 @@
 
 namespace DC\IoC\Registrations;
 
-use DC\IoC\Lifetime\PerResolveLifetimeManager;
-
 abstract class Registration implements IRegistrationLookup {
     protected $boundAs;
     /**
-     * @var ILifetimeManager
+     * @var \DC\IoC\Lifetime\ILifetimeManager
      */
     protected $lifetimeManager;
     /**
-     * @var \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory
+     * @var \DC\IoC\Lifetime\LifetimeManagerFactory
      */
-    private $containerLifetimeManagerFactory;
-    /**
-     * @var \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory
-     */
-    private $singletonLifetimeManagerFactory;
+    private $lifetimeManagerFactory;
 
     protected function __construct($boundAs,
-                                   \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $containerLifetimeManagerFactory,
-                                   \DC\IoC\Lifetime\IExtendedLifetimeManagerFactory $singletonLifetimeManagerFactory)
+                                   \DC\IoC\Lifetime\LifetimeManagerFactory $lifetimeManagerFactory = null)
     {
-        $this->containerLifetimeManagerFactory = $containerLifetimeManagerFactory;
-        $this->singletonLifetimeManagerFactory = $singletonLifetimeManagerFactory;
         $this->setBoundAs($boundAs);
+        $this->lifetimeManagerFactory = $lifetimeManagerFactory;
     }
 
     protected function setBoundAs($boundAs) {
@@ -42,6 +34,11 @@ abstract class Registration implements IRegistrationLookup {
 
     public abstract function create();
 
+    function getServiceType()
+    {
+        return $this->boundAs;
+    }
+
     function to($classOrInterfaceName)
     {
         $this->setBoundAs($classOrInterfaceName);
@@ -50,25 +47,20 @@ abstract class Registration implements IRegistrationLookup {
 
     function withSingletonLifetime()
     {
-        $this->lifetimeManager = $this->singletonLifetimeManagerFactory->getLifetimeManagerForKey($this->getLifetimeManagerKey(), $this);
+        $this->lifetimeManager = $this->lifetimeManagerFactory->getSingletonManager($this->getLifetimeManagerKey(), $this);
         return $this;
     }
 
     function withPerResolveLifetime()
     {
-        $this->lifetimeManager = new PerResolveLifetimeManager($this);
+        $this->lifetimeManager = $this->lifetimeManagerFactory->getPerResolveManager($this);
         return $this;
     }
 
     function withContainerLifetime()
     {
-        $this->lifetimeManager = $this->containerLifetimeManagerFactory->getLifetimeManagerForKey($this->getLifetimeManagerKey(), $this);
+        $this->lifetimeManager = $this->lifetimeManagerFactory->getContainerManager($this->getLifetimeManagerKey(), $this);
         return $this;
-    }
-
-    function canResolve($classOrInterfaceName)
-    {
-        return $this->boundAs == $classOrInterfaceName;
     }
 
     function resolve() {
