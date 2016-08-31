@@ -74,7 +74,7 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                         $params[] = $this->container->resolve($d["class"], $this->className);
                     }
                     catch (CannotResolveException $e) {
-                        if (isset($d["default"])) {
+                        if (array_key_exists("default", $d)) {
                             $params[] = $d["default"];
                         } else {
                             throw $e;
@@ -86,7 +86,7 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                 if (isset($parameters[$d["name"]])) {
                     $params[] = $parameters[$d["name"]];
                 }
-                else if (isset($d["default"])) {
+                else if (array_key_exists("default", $d)) {
                     $params[] = $d["default"];
                 }
                 else {

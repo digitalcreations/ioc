@@ -45,6 +45,15 @@ class UnresolvableConstructorDependencyWithDefaultValue {
     }
 }
 
+class UnresolvableConstructorDependencyWithDefaultNull {
+    public $foo;
+    public $bar;
+    public function __construct(IFoo $foo, $bar = null) {
+        $this->foo = $foo;
+        $this->bar = $bar;
+    }
+}
+
 class ArrayConstructorDependency {
     /**
      * @var array|IFoo[]
@@ -269,6 +278,17 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance->foo);
     }
 
+    public function testConstructorInjectionWithDefaultNull() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $instance = $container->resolve('\DC\Tests\IoC\UnresolvableConstructorDependencyWithDefaultNull');
+        $this->assertNotNull($instance);
+        $this->assertNotNull($instance->foo);
+        $this->assertNull($instance->bar);
+        $this->assertInstanceOf('\DC\Tests\IoC\IFoo', $instance->foo);
+    }
+
     /**
      * @expectedException \DC\IoC\Exceptions\CannotResolveException
      */
@@ -307,6 +327,16 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
     public function testFunctionInjectionIncludesDefaultValue() {
         $container = new \DC\IoC\Container();
         $container->register(function($bar = 42) {
+            return new \DC\Tests\IoC\Foo();
+        })->to('\DC\Tests\IoC\IFoo');
+
+        $foo = $container->resolve('\DC\Tests\IoC\IFoo');
+        $this->assertInstanceOf('\DC\Tests\IoC\Foo', $foo);
+    }
+
+    public function testFunctionInjectionIncludesDefaultValueWhenNull() {
+        $container = new \DC\IoC\Container();
+        $container->register(function($bar = null) {
             return new \DC\Tests\IoC\Foo();
         })->to('\DC\Tests\IoC\IFoo');
 
