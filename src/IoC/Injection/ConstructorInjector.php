@@ -2,6 +2,8 @@
 
 namespace DC\IoC\Injection;
 
+use DC\IoC\Exceptions\CannotResolveException;
+
 class ConstructorInjector extends InjectorBase implements IConstructorInjector {
     const PARAMETER = 42;
     /**
@@ -38,11 +40,17 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                             throw new \DC\IoC\Exceptions\InjectorException($className, $reflectionParameter->getName(), $type);
                         }
 
-                        $definition[] = [
+                        $x = [
                             "name" => $parameterName,
                             "class" => $type
                         ];
-                    }
+
+                        if ($reflectionParameter->isDefaultValueAvailable()) {
+                            $x["default"] = $reflectionParameter->getDefaultValue();
+                        }
+
+                        $definition[] = $x;
+                     }
                 }
             }
 
@@ -62,11 +70,28 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                     $params[] = $this->container->resolveAll(substr($d["class"], 0, count($d["class"])-3));
                 }
                 else {
-                    $params[] = $this->container->resolve($d["class"], $this->className);
+                    try {
+                        $params[] = $this->container->resolve($d["class"], $this->className);
+                    }
+                    catch (CannotResolveException $e) {
+                        if (isset($d["default"])) {
+                            $params[] = $d["default"];
+                        } else {
+                            throw $e;
+                        }
+                    }
                 }
             }
             else {
-                $params[] = $parameters[$d["name"]];
+                if (isset($parameters[$d["name"]])) {
+                    $params[] = $parameters[$d["name"]];
+                }
+                else if (isset($d["default"])) {
+                    $params[] = $d["default"];
+                }
+                else {
+                    throw new \DC\IoC\Exceptions\CannotResolveException($d["name"], $this->className);
+                }
             }
         }
         return new $class(...$params);
