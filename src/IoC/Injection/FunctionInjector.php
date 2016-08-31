@@ -28,7 +28,7 @@ class FunctionInjector extends InjectorBase implements IFunctionInjector {
             if (preg_match('/\[\]$/', $type)) {
                 $dependency = $this->container->resolveAll(substr($type, 0, count($type)-3));
             } else {
-                $dependency = $this->container->resolve($type);
+                $dependency = $this->container->resolve($type, $reflectionFunction->__toString());
             }
             $arguments[] = $dependency;
         }

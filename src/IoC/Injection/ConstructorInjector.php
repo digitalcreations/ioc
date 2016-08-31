@@ -62,7 +62,7 @@ class ConstructorInjector extends InjectorBase implements IConstructorInjector {
                     $params[] = $this->container->resolveAll(substr($d["class"], 0, count($d["class"])-3));
                 }
                 else {
-                    $params[] = $this->container->resolve($d["class"]);
+                    $params[] = $this->container->resolve($d["class"], $this->className);
                 }
             }
             else {

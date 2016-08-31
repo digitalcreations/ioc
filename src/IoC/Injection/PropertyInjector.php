@@ -47,7 +47,7 @@ class PropertyInjector extends InjectorBase implements IPropertyInjector {
                 if ($shouldResolveAll) {
                     $resolved = $this->container->resolveAll($type);
                 } else {
-                    $resolved = $this->container->resolve($type);
+                    $resolved = $this->container->resolve($type, $object);
                 }
                 $object->$property = $resolved;
             } catch (\Exception $e) {

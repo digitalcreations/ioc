@@ -115,7 +115,7 @@ class Container {
      * @throws Exceptions\CannotResolveException When no registrations were found.
      * @return object
      */
-    public function resolve($classOrInterfaceName)
+    public function resolve($classOrInterfaceName, $context = null)
     {
         $registrations = $this->findRegistrations($classOrInterfaceName);
         if (count($registrations) == 1) {
@@ -126,7 +126,7 @@ class Container {
             $injector = new Injection\ConstructorInjector($classOrInterfaceName, $this, $this->cache);
             $object = $injector->construct();
         } else {
-           throw new Exceptions\CannotResolveException($classOrInterfaceName);
+           throw new Exceptions\CannotResolveException($classOrInterfaceName, $context);
         }
         return $object;
     }
