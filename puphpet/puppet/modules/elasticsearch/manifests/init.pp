@@ -93,7 +93,7 @@
 #
 # [*proxy_url*]
 #   For http and https downloads you can set a proxy server to use
-#   Format: proto://[user:pass@]server[:port]/ 
+#   Format: proto://[user:pass@]server[:port]/
 #   Defaults to: undef (proxy disabled)
 #
 # [*elasticsearch_user*]
@@ -136,6 +136,14 @@
 # [*repo_version*]
 #   Our repositories are versioned per major version (0.90, 1.0) select here which version you want
 #
+# [*repo_key_id*]
+#   String.  The apt GPG key id
+#   Default: D88E42B4
+#
+# [*repo_key_source*]
+#   String.  URL of the apt GPG key
+#   Default: http://packages.elastic.co/GPG-KEY-elasticsearch
+#
 # [*logging_config*]
 #   Hash representation of information you want in the logging.yml file
 #
@@ -173,6 +181,9 @@
 #   This pins the package version to the set version number and avoids
 #   package upgrades.
 #   Defaults to: true
+#
+# [*logdir*]
+#   Use different directory for logging
 #
 # The default values for the parameters are set in elasticsearch::params. Have
 # a look at the corresponding <tt>params.pp</tt> manifest file if you need more
@@ -219,15 +230,18 @@ class elasticsearch(
   $service_provider      = 'init',
   $init_defaults         = undef,
   $init_defaults_file    = undef,
-  $init_template         = undef,
+  $init_template         = "${module_name}/etc/init.d/${elasticsearch::params::init_template}",
   $config                = undef,
   $datadir               = $elasticsearch::params::datadir,
+  $logdir                = $elasticsearch::params::logdir,
   $plugindir             = $elasticsearch::params::plugindir,
   $plugintool            = $elasticsearch::params::plugintool,
   $java_install          = false,
   $java_package          = undef,
   $manage_repo           = false,
   $repo_version          = undef,
+  $repo_key_id           = 'D88E42B4',
+  $repo_key_source       = 'http://packages.elastic.co/GPG-KEY-elasticsearch',
   $logging_file          = undef,
   $logging_config        = undef,
   $logging_template      = undef,
@@ -302,13 +316,13 @@ class elasticsearch(
     case $::osfamily {
       'RedHat', 'Linux', 'Suse': {
         if ($version =~ /.+-\d/) {
-          $real_version = $version
+          $pkg_version = $version
         } else {
-          $real_version = "${version}-1"
+          $pkg_version = "${version}-1"
         }
       }
       default: {
-        $real_version = $version
+        $pkg_version = $version
       }
     }
   }
@@ -398,6 +412,7 @@ class elasticsearch(
     Anchor['elasticsearch::begin']
     -> Class['elasticsearch::package']
     -> Class['elasticsearch::config']
+    -> Elasticsearch::Plugin <| |>
     -> Elasticsearch::Instance <| |>
     -> Elasticsearch::Template <| |>
 

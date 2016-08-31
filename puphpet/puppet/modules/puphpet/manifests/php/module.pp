@@ -8,13 +8,69 @@ define puphpet::php::module (
 
   $package = $::osfamily ? {
     'Debian' => {
-      'mbstring' => false, # Comes packaged with PHP, not available in repos
-      'memcached' => $::operatingsystem ? {
+      'apcu'      => $::operatingsystem ? {
         'ubuntu' => $puphpet::php::settings::version ? {
-          '70'    => 'php-memcached',
+          '70'    => 'php-apcu',
+          '56'    => 'php-apcu',
+          default => 'php5-apcu',
+        },
+        default  => 'php5-apcu',
+      },
+      'geoip'     => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-geoip',
+          '56'    => 'php-geoip',
+          default => 'php5-geoip',
+        },
+        default  => 'php5-geoip',
+      },
+      'imagick'   => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-imagick',
+          '56'    => 'php-imagick',
+          default => 'php5-imagick',
+        },
+        default  => 'php5-imagick',
+      },
+      'mbstring'  => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php7.0-mbstring',
+          '56'    => 'php5.6-mbstring',
           default => false,
         },
         default  => false,
+      },
+      'memcache'  => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-memcache',
+          '56'    => 'php-memcache',
+          default => 'php5-memcache',
+        },
+        default  => 'php5-memcache',
+      },
+      'memcached' => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-memcached',
+          '56'    => 'php-memcached',
+          default => 'php5-memcached',
+        },
+        default  => 'php5-memcached',
+      },
+      'mongodb'   => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-mongodb',
+          '56'    => 'php-mongodb',
+          default => 'php5-mongo',
+        },
+        default  => 'php5-mongo',
+      },
+      'redis'     => $::operatingsystem ? {
+        'ubuntu' => $puphpet::php::settings::version ? {
+          '70'    => 'php-redis',
+          '56'    => 'php-redis',
+          default => 'php5-redis',
+        },
+        default  => 'php5-redis',
       },
     },
     'Redhat' => {

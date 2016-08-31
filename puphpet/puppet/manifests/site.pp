@@ -1,5 +1,6 @@
 $yaml = merge_yaml(
   '/vagrant/puphpet/config.yaml',
+  "/vagrant/puphpet/config-${::provisioner_type}.yaml",
   '/vagrant/puphpet/config-custom.yaml'
 )
 
@@ -11,6 +12,7 @@ $drush          = hiera_hash('drush', {})
 $elasticsearch  = hiera_hash('elastic_search', {})
 $firewall       = hiera_hash('firewall', {})
 $hhvm           = hiera_hash('hhvm', {})
+$letsencrypt    = hiera_hash('letsencrypt', {})
 $locales        = hiera_hash('locale', {})
 $mailhog        = hiera_hash('mailhog', {})
 $mariadb        = hiera_hash('mariadb', {})
@@ -200,6 +202,14 @@ class { '::puphpet_ruby':
 
 class { '::puphpet_server':
   server  => $server
+}
+
+if array_true($letsencrypt, 'install') {
+  class { '::puphpet_letsencrypt':
+    letsencrypt => $letsencrypt,
+    apache      => $apache,
+    nginx       => $nginx,
+  }
 }
 
 class { '::puphpet_locale':

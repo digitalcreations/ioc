@@ -14,7 +14,7 @@ class puphpet::php::xdebug (
 
   $xdebug_package = $::osfamily ? {
     'Debian' => "${puphpet::php::settings::prefix}xdebug",
-    'Redhat' => 'php-pecl-xdebug'
+    'Redhat' => "${puphpet::php::settings::pecl_prefix}xdebug"
   }
 
   if !$compile and ! defined(Package[$xdebug_package])
@@ -32,7 +32,7 @@ class puphpet::php::xdebug (
       ensure   => present,
       provider => git,
       source   => 'https://github.com/xdebug/xdebug.git',
-      require  => Class['Php::Devel']
+      require  => Package[$puphpet::php::settings::package_devel]
     }
     -> exec { 'phpize && ./configure --enable-xdebug && make':
       creates => '/.puphpet-stuff/xdebug/configure',
@@ -59,7 +59,7 @@ class puphpet::php::xdebug (
   {
     file { '/usr/bin/xdebug':
       ensure  => present,
-      mode    => '+X',
+      mode    => '+x',
       source  => 'puppet:///modules/puphpet/xdebug_cli_alias.erb',
       require => Package[$php_package]
     }

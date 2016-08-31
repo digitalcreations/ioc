@@ -2,14 +2,24 @@ class puphpet_ruby (
   $ruby
 ) {
 
-  include '::gnupg'
+  include ::gnupg
+  include ::rvm::params
 
   Class['::rvm']
   -> Puphpet::Ruby::Dotfile <| |>
   -> Puphpet::Ruby::Install <| |>
-  -> Exec['rvm rvmrc warning ignore all.rvmrcs']
 
-  class { '::rvm': }
+  gnupg_key { "rvm_${::rvm::params::gnupg_key_id}":
+    ensure     => present,
+    key_id     => $::rvm::params::gnupg_key_id,
+    user       => 'root',
+    key_source => 'https://rvm.io/mpapis.asc',
+    key_type   => public,
+  }
+  -> class { '::rvm':
+    key_server   => undef,
+    gnupg_key_id => false,
+  }
 
   if ! defined(Group['rvm']) {
     group { 'rvm':
@@ -21,6 +31,7 @@ class puphpet_ruby (
     command => 'rvm rvmrc warning ignore all.rvmrcs && touch /.puphpet-stuff/rvmrc',
     creates => '/.puphpet-stuff/rvmrc',
     path    => '/bin:/usr/bin:/usr/local/bin:/usr/local/rvm/bin',
+    require => Exec['system-rvm'],
   }
 
   User <| title == $::ssh_username |> {
