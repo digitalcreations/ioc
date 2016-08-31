@@ -45,6 +45,21 @@ class ArrayConstructorDependency {
     /**
      * @param \DC\Tests\IoC\IFoo[] $foos
      */
+    public function __construct(array $foos = []) {
+
+        $this->foos = $foos;
+    }
+}
+
+class ArrayConstructorDependencyWithArgumentNameAndTypeSwapped {
+    /**
+     * @var array|IFoo[]
+     */
+    public $foos;
+
+    /**
+     * @param $foos \DC\Tests\IoC\IFoo[]
+     */
     public function __construct(array $foos) {
 
         $this->foos = $foos;
@@ -250,6 +265,23 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $instance = $container->resolve('\DC\Tests\IoC\ArrayConstructorDependency');
 
         $this->assertEquals(1, count($instance->foos));
+    }
+
+    public function testConstructorInjectionForArrayWithArgumentNameAndTypeSwapped() {
+        $container = new \DC\IoC\Container();
+        $container->register('\DC\Tests\IoC\Foo')->to('\DC\Tests\IoC\IFoo');
+
+        $instance = $container->resolve('\DC\Tests\IoC\ArrayConstructorDependencyWithArgumentNameAndTypeSwapped');
+
+        $this->assertEquals(1, count($instance->foos));
+    }
+
+    public function testConstructorInjectionWithUnfullfilledArray() {
+        $container = new \DC\IoC\Container();
+        // nothing registered for IFoo
+
+        $instance = $container->resolve('\DC\Tests\IoC\ArrayConstructorDependency');
+        $this->assertEquals(0, count($instance->foos));
     }
 
     public function testFactoryRegistrationServiceInjection() {

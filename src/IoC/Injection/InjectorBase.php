@@ -8,6 +8,8 @@
 
 namespace DC\IoC\Injection;
 
+use DC\IoC\PHPDocHelper;
+
 abstract class InjectorBase {
     /**
      * @var \DC\IoC\Container
@@ -26,13 +28,7 @@ abstract class InjectorBase {
     private $parameterTypes;
     protected function getParameterClasses(\ReflectionFunctionAbstract $reflectionMethod) {
         if (!isset($this->parameterTypes)) {
-            $phpDoc = new \phpDocumentor\Reflection\DocBlock($reflectionMethod);
-            $paramTags = $phpDoc->getTagsByName("param");
-            $this->parameterTypes = [];
-            foreach ($paramTags as $param) {
-                /** @var \phpDocumentor\Reflection\DocBlock\Tag\ParamTag $param */
-                $this->parameterTypes[$param->getVariableName()] = $param->getType();
-            }
+            $this->parameterTypes = \DC\IoC\PHPDocHelper::getDocumentedTypes($reflectionMethod);
         }
         return $this->parameterTypes;
     }
