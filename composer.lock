@@ -4,7 +4,6 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fc1d8b3e3976ae6c3f86b69ac8c5d302",
     "content-hash": "aa72d50464915755a7b3378e8d698e22",
     "packages": [
         {
@@ -54,7 +53,7 @@
                     "email": "mike.vanriel@naenius.com"
                 }
             ],
-            "time": "2015-02-03 12:10:50"
+            "time": "2015-02-03T12:10:50+00:00"
         }
     ],
     "packages-dev": [
@@ -64,16 +63,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/digitalcreations/cache.git",
-                "reference": "9199d17f86a923988ab1d73908a486e26a649699"
+                "reference": "8e9a4538fa8f49c9d77b40b0fef2a90b0e51edf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/digitalcreations/cache/zipball/9199d17f86a923988ab1d73908a486e26a649699",
-                "reference": "9199d17f86a923988ab1d73908a486e26a649699",
+                "url": "https://api.github.com/repos/digitalcreations/cache/zipball/8e9a4538fa8f49c9d77b40b0fef2a90b0e51edf0",
+                "reference": "8e9a4538fa8f49c9d77b40b0fef2a90b0e51edf0",
                 "shasum": ""
             },
+            "require-dev": {
+                "dc/ioc": "dev-master"
+            },
             "suggest": {
-                "dc/cache-memcache": ">=0.2"
+                "dc/cache-memcache": ">=0.2",
+                "dc/ioc": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -103,7 +106,7 @@
                 "cache",
                 "memcached"
             ],
-            "time": "2014-10-27 08:45:47"
+            "time": "2016-12-08T13:02:59+00:00"
         },
         {
             "name": "dc/cache-memcached",
@@ -213,7 +216,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-05-25 05:11:59"
+            "time": "2015-05-25T05:11:59+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -258,7 +261,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2013-10-10 15:34:57"
+            "time": "2013-10-10T15:34:57+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -299,7 +302,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2015-06-21 13:50:34"
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -340,7 +343,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2015-06-21 08:01:12"
+            "time": "2015-06-21T08:01:12+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -389,7 +392,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2015-09-15 10:49:45"
+            "time": "2015-09-15T10:49:45+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -462,7 +465,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-05-02 07:19:37"
+            "time": "2014-05-02T07:19:37+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -519,7 +522,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2014-06-12 07:19:48"
+            "time": "2014-06-12T07:19:48+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -571,7 +574,7 @@
             "keywords": [
                 "diff"
             ],
-            "time": "2015-12-08 07:14:41"
+            "time": "2015-12-08T07:14:41+00:00"
         },
         {
             "name": "sebastian/environment",
@@ -621,7 +624,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2015-12-02 08:37:27"
+            "time": "2015-12-02T08:37:27+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -686,7 +689,7 @@
                 "export",
                 "exporter"
             ],
-            "time": "2014-09-10 00:51:36"
+            "time": "2014-09-10T00:51:36+00:00"
         },
         {
             "name": "sebastian/version",
@@ -721,7 +724,7 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2015-06-21 13:59:46"
+            "time": "2015-06-21T13:59:46+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -770,7 +773,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-01-13 10:28:07"
+            "time": "2016-01-13T10:28:07+00:00"
         }
     ],
     "aliases": [],

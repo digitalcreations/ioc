@@ -46,7 +46,7 @@ class Container {
     function __construct(\DC\Cache\ICache $cache = null)
     {
         if ($cache == null) {
-            $cache = new RequestCache();
+            $cache = new \DC\Cache\InMemoryCache();
         }
         $this->cache = $cache;
 
