@@ -152,6 +152,32 @@ $container->register(
 	})->to('\Bar');
 ```
 
+## Modules
+
+If you have a large project that needs to register a lot of services, implementing a module may be the way to go.
+
+Extend `\DC\IoC\Modules\Module` and specify a name for your module and which modules it depends on.
+ 
+```php
+class MyModule extends \DC\IoC\Modules\Module {
+    public __construct() {
+        parent::__construct("package-name", ["dc/router"]);
+    }
+    
+    public register(\DC\IoC\Container $container) {
+        $container->register('\Foo')->to('\Bar');
+    }
+}
+```
+
+When (preferably before) registering your services, register all the modules first:
+
+```php
+$container->registerModules([new MyModule(), new \DC\Router\Module()]);
+```
+
+The container will try to register any dependencies in the correct order.
+
 ## Performance
 
 Some crude performance tests can be found in the `perf/` folder of this repos. They show the following (numbers from a VM running on my machine):

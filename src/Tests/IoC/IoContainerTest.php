@@ -400,4 +400,30 @@ class IoCContainerTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($ran);
         $this->assertTrue($result);
     }
-} 
+
+    /**
+     * @covers \DC\IoC\Container
+     */
+    public function testModuleRegistration() {
+        $nameList = [];
+        $callback = function($name) use (&$nameList) {
+            $nameList[] = $name;
+        };
+
+        $modules = [
+            new \DC\Tests\IoC\Modules\TestModule("dc/cache", [], $callback),
+            new \DC\Tests\IoC\Modules\TestModule("dc/router", ["dc/cache"], $callback),
+            new \DC\Tests\IoC\Modules\TestModule("dc/router-outputcache", ["dc/router", "dc/cache"], $callback),
+            new \DC\Tests\IoC\Modules\TestModule("dc/router-authorize", ["dc/router"], $callback)
+        ];
+
+        $resolver = new \DC\IoC\Container();
+        $resolver->registerModules($modules);
+
+        $this->assertEquals("dc/cache", $nameList[0]);
+        $this->assertEquals("dc/router", $nameList[1]);
+
+        $this->assertEquals("dc/router-outputcache", $nameList[2]);
+        $this->assertEquals("dc/router-authorize", $nameList[3]);
+    }
+}

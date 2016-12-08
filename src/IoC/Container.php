@@ -34,6 +34,11 @@ class Container {
     private $lifetimeManagerFactory;
 
     /**
+     * @var Modules\DependencyResolver
+     */
+    private $moduleDependencyResolver;
+
+    /**
      * @var \DC\Cache\ICache
      */
     private $cache;
@@ -47,6 +52,7 @@ class Container {
 
         $this->propertyInjector = new Injection\PropertyInjector($this, $cache);
         $this->functionInjector = new Injection\FunctionInjector($this, $cache);
+        $this->moduleDependencyResolver = new Modules\DependencyResolver();
 
         $this->lifetimeManagerFactory = new Lifetime\LifetimeManagerFactory($this->propertyInjector);
     }
@@ -54,6 +60,27 @@ class Container {
     private function addRegistration(Registrations\Registration $registration) {
         $this->registry[] = $registration;
         $this->registryLookup = null;
+    }
+
+    /**
+     * All modules must be registered at once for dependency resolution to work correctly.
+     *
+     * @param array|\DC\IoC\Modules\Module[] $modules
+     */
+    public function registerModules(array $modules) {
+        $order = $this->moduleDependencyResolver->resolveOrder($modules);
+        /**
+         * @var \DC\IoC\Modules\Module[]
+         */
+        $ordered = [];
+
+        foreach ($modules as $module) {
+            $ordered[$module->getName()] = $module;
+        }
+
+        foreach ($order as $name) {
+            $ordered[$name]->register($this);
+        }
     }
 
     /**
