@@ -10,13 +10,13 @@ class DependencyResolver
      * @param array|\Module[] $modules
      * @return Module[]
      */
-    function resolveOrder(array $modules) {
+    function resolveOrder(array $modules, array $registeredModules = []) {
         $ordered = [];
         $dependencies = [];
 
         foreach ($modules as $module) {
             $ordered[$module->getName()] = $module;
-            $dependencies[$module->getName()] = $module->getDependencies();
+            $dependencies[$module->getName()] = array_filter($module->getDependencies(), function($dependency) use ($registeredModules) { return !in_array($dependency, $registeredModules); });
         }
 
         $order = [];

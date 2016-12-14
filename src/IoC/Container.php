@@ -39,9 +39,15 @@ class Container {
     private $moduleDependencyResolver;
 
     /**
+     * @var string[]
+     */
+    private $registeredModules = [];
+
+    /**
      * @var \DC\Cache\ICache
      */
     private $cache;
+
 
     function __construct(\DC\Cache\ICache $cache = null)
     {
@@ -68,7 +74,7 @@ class Container {
      * @param array|\DC\IoC\Modules\Module[] $modules
      */
     public function registerModules(array $modules) {
-        $order = $this->moduleDependencyResolver->resolveOrder($modules);
+        $order = $this->moduleDependencyResolver->resolveOrder($modules, $this->registeredModules);
         /**
          * @var \DC\IoC\Modules\Module[]
          */
@@ -80,6 +86,7 @@ class Container {
 
         foreach ($order as $name) {
             $ordered[$name]->register($this);
+            $this->registeredModules[] = $name;
         }
     }
 
