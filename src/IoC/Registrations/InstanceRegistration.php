@@ -38,17 +38,17 @@ class InstanceRegistration extends Registration {
 
     function withPerResolveLifetime()
     {
-        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
     function withSingletonLifetime()
     {
-        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
     function withContainerLifetime()
     {
-        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations do not have a lifetime");
+        throw new \InvalidArgumentException("Instance registrations do not have a lifetime");
     }
 
     /**
@@ -56,7 +56,7 @@ class InstanceRegistration extends Registration {
      */
     function withParameters(array $parameters)
     {
-        throw new \DC\IoC\Exceptions\InvalidArgumentException("Instance registrations cannot take parameters.");
+        throw new \InvalidArgumentException("Instance registrations cannot take parameters.");
     }
 
     function resolve()
